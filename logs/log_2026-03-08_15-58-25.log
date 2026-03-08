@@ -1,0 +1,5 @@
+[2026-03-08 15:58:36] data_ingestion.py - INFO - root - Logging has started
+[2026-03-08 15:58:36] data_ingestion.py - INFO - root - Data ingestion started by reading a .csv file
+[2026-03-08 15:58:37] data_ingestion.py - INFO - root - Read the dataset as a dataframe
+[2026-03-08 15:58:42] data_ingestion.py - INFO - root - Train test split initiated
+[2026-03-08 15:58:47] data_ingestion.py - INFO - root - Data ingestion completed successfully

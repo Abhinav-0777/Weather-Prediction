@@ -1,6 +1,7 @@
 import os
 from src.logger import logging
 from src.exception import CustomException
+from src.components.data_transformation import DataTransformation
 from dataclasses import dataclass
 import pandas as pd
 import sys
@@ -24,7 +25,7 @@ class DataIngestion :
 
         try :
 
-            df = pd.read_csv(r"data\WeaatherAUS.csv")
+            df = pd.read_csv(r"data\weatherAUS.csv")
             logging.info("Read the dataset as a dataframe")
 
             os.makedirs(os.path.dirname(self.DataIngestionConfig.train_data_path),exist_ok=True)
@@ -34,6 +35,7 @@ class DataIngestion :
             logging.info("Train test split initiated")
 
             training_set, testing_set = train_test_split(df, test_size=0.2, random_state=42)
+            
             train_set = pd.DataFrame(training_set)
             test_set = pd.DataFrame(testing_set)
 
@@ -54,5 +56,9 @@ class DataIngestion :
 
 if __name__ == "__main__" :
     logging.info("Logging has started")
-    obj = DataIngestion()
-    obj.initiate_data_ingestion()
+    
+    data_ingestion_obj = DataIngestion()
+    train_data, test_data = data_ingestion_obj.initiate_data_ingestion()
+
+    data_transformation_obj = DataTransformation()
+    data_transformation_obj.initiate_data_transformation(train_path=train_data, test_path=test_data)
