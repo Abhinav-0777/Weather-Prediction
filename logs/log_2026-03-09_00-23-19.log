@@ -1,0 +1,13 @@
+[2026-03-09 00:24:01] data_ingestion.py - INFO - root - Logging has started
+[2026-03-09 00:24:01] data_ingestion.py - INFO - root - Data ingestion started by reading a .csv file
+[2026-03-09 00:24:02] data_ingestion.py - INFO - root - Read the dataset as a dataframe
+[2026-03-09 00:24:05] data_ingestion.py - INFO - root - Train test split initiated
+[2026-03-09 00:24:09] data_ingestion.py - INFO - root - Data ingestion completed successfully
+[2026-03-09 00:24:09] data_transformation.py - INFO - root - Data transformation has started
+[2026-03-09 00:24:10] data_transformation.py - INFO - root - Successfully read the train and test data
+[2026-03-09 00:24:10] data_transformation.py - INFO - root - Dividing the train and test set into input and target features
+[2026-03-09 00:24:10] data_transformation.py - INFO - root - Obtaining the preprocessor object.... 
+[2026-03-09 00:24:10] data_transformation.py - INFO - root - Data transformation started
+[2026-03-09 00:24:10] data_transformation.py - INFO - root - Numerical and categorical columns pipeline created
+[2026-03-09 00:24:10] data_transformation.py - INFO - root - Successfully created the data_transformer object
+[2026-03-09 00:24:10] data_transformation.py - INFO - root - Applying the preprocessing object on training and testing dataframe

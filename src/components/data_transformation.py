@@ -102,7 +102,6 @@ class DataTransformation() :
             label_encoder_object = LabelEncoder()
             target_feature_train_arr = label_encoder_object.fit_transform(target_feature_train_df)
             target_feature_test_arr = label_encoder_object.transform(target_feature_test_df)
-            print(target_feature_train_arr.shape)
 
             numerical_columns = input_feature_train_df.select_dtypes(include=np.number).columns 
             categorical_columns = input_feature_train_df.select_dtypes(include=['object','category']).columns
@@ -118,8 +117,6 @@ class DataTransformation() :
 
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
             input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)     
-            print(input_feature_train_arr.shape)       
-            print(input_feature_train_arr)
 
             train_arr = np.c_[input_feature_train_arr, target_feature_train_arr]
             test_arr = np.c_[input_feature_test_arr, target_feature_test_arr]
