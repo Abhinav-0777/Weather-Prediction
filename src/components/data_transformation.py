@@ -14,13 +14,13 @@ from src.utils import save_object
 
 @dataclass
 class DataTransformationConfig :
-    transformed_data_obj_file_path : str = os.path.join("artifacts","data_transformed.pkl")
+    transformed_data_obj_file_path : str = os.path.join("artifacts","preprocessing_object.pkl")
 
 
 class DataTransformation() :
 
     def __init__(self) :
-        self.DataTransformationConfig = DataTransformationConfig()
+        self.data_transformation_config = DataTransformationConfig()
 
     def get_data_transformer_object(self, numerical_columns, categorical_columns) :
         
@@ -68,6 +68,32 @@ class DataTransformation() :
 
     def initiate_data_transformation(self, train_path, test_path) :
         
+        """
+        Initiates the data transformation process.
+
+        This function loads the training and testing datasets, performs feature
+        engineering and preprocessing using a transformation pipeline, and
+        converts the data into a format suitable for model training.
+
+        Steps performed:
+        1. Load train and test datasets from the given file paths.
+        2. Separate input features and target variable.
+        3. Apply preprocessing pipeline (scaling, encoding, etc.).
+        4. Transform both train and test datasets.
+        5. Save the preprocessing object for future use.
+
+        Args:
+            train_path (str): Path to the training dataset.
+            test_path (str): Path to the testing dataset.
+
+        Returns:
+            tuple: Transformed training array, transformed testing array,
+                and path to the saved preprocessing object.
+
+        Raises:
+            CustomException: If any error occurs during the transformation process.
+        """
+
         logging.info("Data transformation has started")
         
         try :
@@ -86,8 +112,7 @@ class DataTransformation() :
                 data['Day'] = data['Date'].dt.day
                 data['Weekday'] = data['Date'].dt.weekday
                 
-                data = data.drop(columns = 'Date')
-
+                data = data.drop(columns = 'Date', inplace=True)
 
             target_column_name = 'RainTomorrow'
 
@@ -117,23 +142,29 @@ class DataTransformation() :
 
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
             input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)     
+            
+            logging.info("Successfully applied the preprocessing object")
 
             train_arr = np.c_[input_feature_train_arr, target_feature_train_arr]
             test_arr = np.c_[input_feature_test_arr, target_feature_test_arr]
             
+            logging.info("Saving the data")
+
             save_object (
-                self.DataTransformationConfig.transformed_data_obj_file_path,
+                self.data_transformation_config.transformed_data_obj_file_path,
                 preprocessing_obj
             )
+            
+            logging.info("Data saved successfully into preprocessing_object.pkl")
 
             return (
                 train_arr,
                 test_arr,
-                self.DataTransformationConfig.transformed_data_obj_file_path
+                self.data_transformation_config.transformed_data_obj_file_path
             )
         
 
         except Exception as e:
-            logging.info("An error has occurred")
+            logging.error("An error has occurred")
             raise CustomException(e,sys)
 

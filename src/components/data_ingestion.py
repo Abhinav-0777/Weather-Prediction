@@ -2,6 +2,7 @@ import os
 from src.logger import logging
 from src.exception import CustomException
 from src.components.data_transformation import DataTransformation
+from src.components.model_trainer import ModelTrainer
 from dataclasses import dataclass
 import pandas as pd
 import sys
@@ -16,21 +17,41 @@ class DataIngestionConfig :
 class DataIngestion :
 
     def __init__(self) :
-        self.DataIngestionConfig = DataIngestionConfig()
+        self.data_ingestion_config = DataIngestionConfig()
     
 
     def initiate_data_ingestion(self) :
 
-        logging.info("Data ingestion started by reading a .csv file")
+        """
+        Initiates the data ingestion process.
+
+        This function reads the raw dataset from the source, splits the data into
+        training and testing datasets, and stores them in the artifacts directory
+        for further processing in the ML pipeline.
+
+        Steps performed:
+        1. Read the dataset from the specified data source.
+        2. Split the dataset into train and test sets.
+        3. Save the train and test datasets as CSV files in the artifacts folder.
+
+        Returns:
+            tuple: File paths of the saved training and testing datasets.
+                (train_data_path, test_data_path)
+
+        Raises:
+            CustomException: If any error occurs during the ingestion process.
+        """
+
+        logging.info("Data ingestion has started ")
 
         try :
 
             df = pd.read_csv(r"data\weatherAUS.csv")
-            logging.info("Read the dataset as a dataframe")
+            logging.info("Successfully read the dataset as a dataframe")
 
-            os.makedirs(os.path.dirname(self.DataIngestionConfig.train_data_path),exist_ok=True)
+            os.makedirs(os.path.dirname(self.data_ingestion_config.train_data_path),exist_ok=True)
             
-            df.to_csv(self.DataIngestionConfig.raw_data_path,index=False, header=True)
+            df.to_csv(self.data_ingestion_config.raw_data_path,index=False, header=True)
             
             logging.info("Train test split initiated")
 
@@ -39,13 +60,15 @@ class DataIngestion :
             train_set = pd.DataFrame(training_set)
             test_set = pd.DataFrame(testing_set)
 
-            train_set.to_csv(self.DataIngestionConfig.train_data_path, index=False, header=True)
-            test_set.to_csv(self.DataIngestionConfig.test_data_path, index=False, header=True)
+            logging.info("Storing the train and test data.....")
+ 
+            train_set.to_csv(self.data_ingestion_config.train_data_path, index=False, header=True)
+            test_set.to_csv(self.data_ingestion_config.test_data_path, index=False, header=True)
 
             logging.info("Data ingestion completed successfully")
 
-            return (self.DataIngestionConfig.train_data_path, 
-                    self.DataIngestionConfig.test_data_path)
+            return (self.data_ingestion_config.train_data_path, 
+                    self.data_ingestion_config.test_data_path)
         
 
         except Exception as e :
@@ -61,4 +84,12 @@ if __name__ == "__main__" :
     train_data, test_data = data_ingestion_obj.initiate_data_ingestion()
 
     data_transformation_obj = DataTransformation()
-    data_transformation_obj.initiate_data_transformation(train_path=train_data, test_path=test_data)
+    train_transformed, test_transformed, preprocessor_obj = data_transformation_obj.initiate_data_transformation(train_path=train_data, test_path=test_data)
+
+    model_trainer_obj = ModelTrainer()
+    best_model_accuracy_score = model_trainer_obj.initiate_model_trainer(
+        train_array=train_transformed,
+        test_array=test_transformed,
+        preprocessor_path=preprocessor_obj
+    )
+    print(best_model_accuracy_score)

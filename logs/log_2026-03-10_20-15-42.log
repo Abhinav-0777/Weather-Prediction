@@ -1,0 +1,20 @@
+[2026-03-10 20:16:19] data_ingestion.py - INFO - root - Logging has started
+[2026-03-10 20:16:19] data_ingestion.py - INFO - root - Data ingestion has started 
+[2026-03-10 20:16:19] data_ingestion.py - INFO - root - Successfully read the dataset as a dataframe
+[2026-03-10 20:16:23] data_ingestion.py - INFO - root - Train test split initiated
+[2026-03-10 20:16:23] data_ingestion.py - INFO - root - Storing the train and test data.....
+[2026-03-10 20:16:28] data_ingestion.py - INFO - root - Data ingestion completed successfully
+[2026-03-10 20:16:28] data_transformation.py - INFO - root - Data transformation has started
+[2026-03-10 20:16:29] data_transformation.py - INFO - root - Successfully read the train and test data
+[2026-03-10 20:16:29] data_transformation.py - INFO - root - Dividing the train and test set into input and target features
+[2026-03-10 20:16:29] data_transformation.py - INFO - root - Obtaining the preprocessor object.... 
+[2026-03-10 20:16:29] data_transformation.py - INFO - root - Data transformation started
+[2026-03-10 20:16:29] data_transformation.py - INFO - root - Numerical and categorical columns pipeline created
+[2026-03-10 20:16:29] data_transformation.py - INFO - root - Successfully created the data_transformer object
+[2026-03-10 20:16:29] data_transformation.py - INFO - root - Applying the preprocessing object on training and testing dataframe
+[2026-03-10 20:16:30] data_transformation.py - INFO - root - Successfully applied the preprocessing object
+[2026-03-10 20:16:30] data_transformation.py - INFO - root - Saving the data
+[2026-03-10 20:16:30] data_transformation.py - INFO - root - Data saved successfully into preprocessing_object.pkl
+[2026-03-10 20:16:30] model_trainer.py - INFO - root - Model Training has started
+[2026-03-10 20:16:30] model_trainer.py - INFO - root - Splitting the train and test arrays
+[2026-03-10 20:25:37] model_trainer.py - ERROR - root - An error has occurred
