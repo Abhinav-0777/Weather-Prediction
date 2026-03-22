@@ -1,0 +1,89 @@
+/* General body styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #e0f7fa, #ffffff);
+    margin: 0;
+    padding: 0;
+}
+
+/* Container for the form */
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    background: #ffffff;
+    padding: 40px 50px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    text-align: left;
+}
+
+/* Form header */
+.container h1 {
+    text-align: center;
+    color: #00796b;
+    margin-bottom: 30px;
+    font-size: 2em;
+}
+
+/* Labels */
+label {
+    display: block;
+    font-weight: 600;
+    margin-top: 15px;
+    color: #004d40;
+}
+
+.result {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #e8f5e9;
+    border-left: 6px solid #4CAF50;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Inputs, selects, date pickers */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 5px;
+    border: 1px solid #b2dfdb;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: 0.3s;
+}
+
+input:focus,
+select:focus {
+    border-color: #00796b;
+    box-shadow: 0 0 5px rgba(0, 121, 107, 0.3);
+    outline: none;
+}
+
+/* Submit button */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 25px;
+    background-color: #00796b;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #004d40;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .container {
+        padding: 30px 20px;
+    }
+}

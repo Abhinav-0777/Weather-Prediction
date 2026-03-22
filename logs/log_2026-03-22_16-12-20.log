@@ -1,0 +1,5 @@
+[2026-03-22 16:12:28] utils.py - ERROR - fastapi - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
