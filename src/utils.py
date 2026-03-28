@@ -68,6 +68,7 @@ def load_object(file_path) :
             return dill.load(file_obj)
 
     except Exception as e :
+        logging.error("An error has occurred.")
         raise CustomException(e,sys)
 
 

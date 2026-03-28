@@ -62,7 +62,7 @@ class DataTransformation() :
             return preprocessor
 
         except Exception as e:
-            logging.info("An error has occurred")
+            logging.error("An error has occurred")
             raise CustomException(e,sys)
         
 
@@ -112,7 +112,7 @@ class DataTransformation() :
                 data['Day'] = data['Date'].dt.day
                 data['Weekday'] = data['Date'].dt.weekday
                 
-                data = data.drop(columns = 'Date', inplace=True)
+                data.drop(columns = 'Date', inplace=True)
 
             target_column_name = 'RainTomorrow'
 

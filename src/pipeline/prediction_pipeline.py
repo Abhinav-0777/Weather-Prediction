@@ -12,10 +12,18 @@ class PredictionPipeline :
 
     def get_prediction(self, features) :
         
+        """This function gets the user data as arguement and runs prediction on it .
+
+        Returns:
+            list : the prediction of the model on that particular data .
+        """
+
         try :
             model_path = os.path.join("artifacts","model.pkl")
             preprocessor_path = os.path.join("artifacts","preprocessing_object.pkl")
             
+            logging.info("loading the model path and preprocessor object")
+
             model_obj = load_object(model_path)
             preprocessor_object = load_object(preprocessor_path)
 

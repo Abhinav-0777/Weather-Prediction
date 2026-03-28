@@ -1,5 +1,6 @@
 import pandas as pd
 import sys
+from src.logger import logging
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -10,7 +11,11 @@ from src.exception import CustomException
 
 app = FastAPI()
 
+logging.info("mounting the static folder to our web app")
+
 app.mount("/static", StaticFiles(directory='static'), name="static")
+
+logging.info("creating Jinja2Templates object")
 
 templates = Jinja2Templates(directory="templates")
 
@@ -53,6 +58,8 @@ def prediction(
 
     try :
 
+        logging.info("validating data using pydantic models")
+
         data = data_validation(
             Date=Date,
             Location=Location,
@@ -78,7 +85,11 @@ def prediction(
             RainToday=RainToday
         )
 
+        logging.info("converting user entered data to a dataframe")
+
         df = pd.DataFrame([data.model_dump()])
+
+        logging.info("getting the predition from the model")
 
         pipeline = PredictionPipeline()
         pred = pipeline.get_prediction(df)
@@ -92,5 +103,6 @@ def prediction(
         )
 
     except Exception as e :
+        logging.error("an error has occurred")
         raise CustomException(e,sys)
     
