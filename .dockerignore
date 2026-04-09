@@ -1,5 +1,6 @@
 venv/
-artifacts/
+/data
+*.csv
 __pycache__/
 catboost_info/
 .pytest_cache
