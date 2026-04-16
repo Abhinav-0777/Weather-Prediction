@@ -8,9 +8,11 @@
 <body>
     <div class="container">
         <h1>Weather Prediction</h1>
-            {% if prediction %}
+
+        {% if prediction %}
         <h2>{{ prediction }}</h2>
-            {% endif %}
+        {% endif %}
+
         <form action="/predict" method="post">
 
             <label for="Date">Date:</label>
@@ -84,6 +86,11 @@
             </select>
 
             <button type="submit">Predict</button>
+
+            <button type="button" onclick="window.location.href='/predict_live'">
+                Predict Live
+            </button>
+
         </form>
     </div>
 </body>

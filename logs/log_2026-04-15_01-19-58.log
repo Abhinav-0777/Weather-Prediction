@@ -1,0 +1,5 @@
+[2026-04-15 01:20:07] app.py - INFO - root - mounting the static folder to our web app
+[2026-04-15 01:20:07] app.py - INFO - root - creating Jinja2Templates object
+[2026-04-15 01:20:25] prediction_pipeline.py - INFO - root - loading the model path and preprocessor object
+[2026-04-15 01:20:26] prediction_pipeline.py - INFO - root - Applying the data transformation on the user entered data
+[2026-04-15 01:20:26] prediction_pipeline.py - INFO - root - Running prediction on the scaled data

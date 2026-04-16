@@ -7,6 +7,9 @@ from dataclasses import dataclass
 import pandas as pd
 import sys
 from sklearn.model_selection import train_test_split
+import requests
+from datetime import datetime
+
 
 @dataclass
 class DataIngestionConfig :
@@ -75,7 +78,27 @@ class DataIngestion :
             logging.error("An error has occurred")
             raise CustomException(e,sys)
     
-    
+
+def fetch_weather(latitude:float, longitude:float, hourly_features:list[str], daily_features:list[str]) -> dict :
+
+    url = "https://api.open-meteo.com/v1/forecast"
+
+    params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "daily": daily_features,
+        "hourly": hourly_features,
+        "timezone":"auto",
+        "start_date": datetime.now().strftime("%Y-%m-%d"),
+        "end_date": datetime.now().strftime("%Y-%m-%d")
+    }
+
+    response = requests.get(url, params, timeout=10)
+
+    data = response.json()
+
+    return data 
+
 
 if __name__ == "__main__" :
     logging.info("Logging has started")
