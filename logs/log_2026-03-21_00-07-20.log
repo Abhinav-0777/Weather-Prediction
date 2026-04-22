@@ -1,4 +1,0 @@
-[2026-03-21 00:07:34] prediction_pipeline.py - INFO - root - Applying the data transformation on the user entered data
-[2026-03-21 00:07:34] prediction_pipeline.py - INFO - root - Running prediction on the scaled data
-[2026-03-21 00:18:15] prediction_pipeline.py - INFO - root - Applying the data transformation on the user entered data
-[2026-03-21 00:18:16] prediction_pipeline.py - INFO - root - Running prediction on the scaled data

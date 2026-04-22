@@ -1,4 +1,0 @@
-[2026-04-15 00:52:40] app.py - INFO - root - mounting the static folder to our web app
-[2026-04-15 00:52:40] app.py - INFO - root - creating Jinja2Templates object
-[2026-04-15 00:52:42] app.py - ERROR - root - An error has occurred.
-[2026-04-15 00:52:58] app.py - ERROR - root - An error has occurred.

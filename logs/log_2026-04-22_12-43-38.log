@@ -1,0 +1,2 @@
+[2026-04-22 12:44:09] app.py - INFO - root - mounting the static folder to our web app
+[2026-04-22 12:44:09] app.py - INFO - root - creating Jinja2Templates object
