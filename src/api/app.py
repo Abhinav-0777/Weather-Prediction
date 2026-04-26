@@ -1,5 +1,5 @@
-import pandas as pd
 import sys
+import pandas as pd
 from src.logger import logging
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
@@ -26,6 +26,26 @@ templates = Jinja2Templates(directory="src/api/templates")
 @app.get('/health')
 def health() :
     return {'Health':'Ok, API is running.'}
+
+@app.on_event("startup")
+def startup_event() :
+    global app_start_time
+    app_start_time = datetime.now() 
+
+def format_uptime(delta):
+    total_seconds = int(delta.total_seconds())
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    return f"{hours}h {minutes}m {seconds}s"
+
+@app.get("/info")
+def info() :
+    return {
+        "uptime" : format_uptime(datetime.now() - app_start_time) if app_start_time is not None else "app didn't started properly",
+        "model" : "Weather-Prediction Model",
+        "version" : "v1"
+    }
 
 @app.get("/", response_class=HTMLResponse)
 def home(request : Request) :

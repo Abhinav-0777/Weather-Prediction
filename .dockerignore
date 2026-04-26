@@ -1,7 +1,9 @@
 venv/
-/data
+data/
+artifacts/
 *.csv
 __pycache__/
 catboost_info/
 .pytest_cache
 *.pyc
+*.egg-info/
