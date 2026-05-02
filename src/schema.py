@@ -2,6 +2,7 @@ from pydantic import BaseModel,Field
 from datetime import date
 from typing import Literal
 
+
 class data_validation(BaseModel) :
 
     Date : date
