@@ -1,7 +1,6 @@
 import os
 import sys
 import shap
-import numpy as np
 import pandas as pd
 from src.utils import load_object
 from src.logger import logging
