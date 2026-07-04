@@ -1,10 +1,10 @@
 import sys
 import os
+import dill
 import pandas as pd
 from src.exception import CustomException
 from src.logger import logging
-import dill
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import fbeta_score, make_scorer
 from sklearn.model_selection import GridSearchCV
 
 def save_object(file_path, obj) :
@@ -34,8 +34,10 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
             model = list(models.values())[i]
             para = list(params.values())[i]
- 
-            gs = GridSearchCV(model, para, cv=5, verbose=2, n_jobs=-1)
+  
+            f2_scorer = make_scorer(fbeta_score, beta=2)
+
+            gs = GridSearchCV(model, para, cv=5, scoring=f2_scorer, verbose=2, n_jobs= 4 if list(models.keys())[i] in ['XGBoost','CatBoost'] else -1)
             gs.fit(X_train, y_train)
 
             model.set_params(**gs.best_params_)
@@ -44,7 +46,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
             y_test_pred = model.predict(X_test)
 
-            test_model_score = accuracy_score(y_test, y_test_pred)
+            test_model_score = fbeta_score(y_test, y_test_pred, beta=2)
 
             model_report[list(models.keys())[i]] = test_model_score
 

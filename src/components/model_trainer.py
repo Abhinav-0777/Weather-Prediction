@@ -7,7 +7,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import fbeta_score
 
 from dataclasses import dataclass
 from src.logger import logging
@@ -63,14 +63,14 @@ class ModelTrainer :
 
             models = {
 
-                'Logistic Regression' : LogisticRegression(max_iter=1000),
-                'Decision Trees' : DecisionTreeClassifier(),
+                'Logistic Regression' : LogisticRegression(max_iter=1000, class_weight='balanced', random_state=42),
+                'Decision Trees' : DecisionTreeClassifier(class_weight='balanced', random_state=42),
                 'KNN' : KNeighborsClassifier(),
-                'Random Forest' : RandomForestClassifier(),
-                'XGBoost' : XGBClassifier(eval_metric='logloss'),
-                'CatBoost' : CatBoostClassifier(iterations=200, verbose=False),
-                'AdaBoost' : AdaBoostClassifier(),
-                'GradientBoosting' : GradientBoostingClassifier()
+                'Random Forest' : RandomForestClassifier(class_weight='balanced', random_state=42),
+                'XGBoost' : XGBClassifier(scale_pos_weight=3.46, device='cuda', random_state=42),
+                'CatBoost' : CatBoostClassifier(verbose=False, scale_pos_weight=3.46, task_type='GPU', random_state=42),
+                'AdaBoost' : AdaBoostClassifier(estimator=DecisionTreeClassifier(max_depth=1, class_weight='balanced'), random_state=42),
+                'GradientBoosting' : GradientBoostingClassifier(random_state=42)
             
             }
 
@@ -99,13 +99,14 @@ class ModelTrainer :
 
                     "XGBoost": {
                         'learning_rate': [.1,.01,.05,.001],
-                        'n_estimators': [8,16,32,64,128,256]
+                        'n_estimators': [8,16,32,64,128,256],
+                        'eval_metric': ['logloss','aucpr']
                     },
 
                     "CatBoost": {
                         'depth': [6,8,10],
                         'learning_rate': [0.01,0.05,0.1],
-                        'iterations': [30,50,100]
+                        'iterations': [30,50,100,200]
                     },
 
                     "AdaBoost": {
@@ -130,7 +131,7 @@ class ModelTrainer :
                 params = params
             )
 
-            best_model_score = max(sorted(model_report.values()))
+            best_model_score = max(model_report.values())
 
             best_model_name = list(model_report.keys())[list(model_report.values()).index(best_model_score)]
 
@@ -148,9 +149,11 @@ class ModelTrainer :
             
             best_model_prediction = best_model.predict(X_test)
 
-            best_model_accuracy = accuracy_score(y_test, best_model_prediction)
+            best_model_f2_score = fbeta_score(y_test, best_model_prediction, beta=2)
 
-            return best_model_accuracy
+            logging.info(f"The best model f2_score is: {best_model_f2_score}")
+
+            return best_model_f2_score
 
         except Exception as e :
             logging.error("An error has occurred")

@@ -3,6 +3,7 @@ from src.logger import logging
 from src.exception import CustomException
 from src.components.data_transformation import DataTransformation
 from src.components.model_trainer import ModelTrainer
+from src.components.model_evaluation import model_evaluation
 from dataclasses import dataclass
 import pandas as pd
 import sys
@@ -49,7 +50,7 @@ class DataIngestion :
 
         try :
 
-            df = pd.read_csv(r"data\weatherAUS.csv")
+            df = pd.read_csv("data/weatherAUS.csv")
             logging.info("Successfully read the dataset as a dataframe")
 
             os.makedirs(os.path.dirname(self.data_ingestion_config.train_data_path),exist_ok=True)
@@ -110,9 +111,12 @@ if __name__ == "__main__" :
     train_transformed, test_transformed, preprocessor_obj = data_transformation_obj.initiate_data_transformation(train_path=train_data, test_path=test_data)
 
     model_trainer_obj = ModelTrainer()
-    best_model_accuracy_score = model_trainer_obj.initiate_model_trainer(
+    best_model_f2_score = model_trainer_obj.initiate_model_trainer(
         train_array=train_transformed,
         test_array=test_transformed,
         preprocessor_path=preprocessor_obj
     )
-    print(best_model_accuracy_score)
+    metrics_dict = model_evaluation()
+
+    print(best_model_f2_score)
+    print(metrics_dict)

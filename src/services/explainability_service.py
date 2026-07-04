@@ -29,7 +29,6 @@ def model_interpretability(features: pd.DataFrame) -> list:
         logging.info("Sorting the list")
 
         values = shap_values.values[0]
-        values = np.linalg.norm(values, axis=1)
         
         sorted_list = sorted(list(zip(list(features.columns), values)), key=lambda x: abs(x[1]), reverse=True)
         

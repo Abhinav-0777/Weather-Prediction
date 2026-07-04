@@ -15,7 +15,8 @@ from src.utils import save_object
 @dataclass
 class DataTransformationConfig :
     transformed_data_obj_file_path : str = os.path.join("artifacts","preprocessing_object.pkl")
-
+    transformed_train_array_path : str = os.path.join("artifacts","transformed_train_array.npy")
+    transformed_test_array_path : str = os.path.join("artifacts","transformed_test_array.npy")
 
 class DataTransformation() :
 
@@ -53,7 +54,7 @@ class DataTransformation() :
             logging.info("Numerical and categorical columns pipeline created")
 
             preprocessor = ColumnTransformer([
-                ('num_pipeline', num_pipeline, numerical_columns),
+                ("num_pipeline", num_pipeline, numerical_columns),
                 ("cat_pipeline", cat_pipeline, categorical_columns)
             ])
             
@@ -102,7 +103,12 @@ class DataTransformation() :
             test_df = pd.read_csv(test_path)
             
             logging.info("Successfully read the train and test data")
-            
+
+            train_df = train_df.dropna(subset=['RainTomorrow'])
+            test_df = test_df.dropna(subset=['RainTomorrow'])
+
+            logging.info("Successfully dropped the rows with NaN target values")
+
             for data in [train_df, test_df] :
 
                 data['Date'] = pd.to_datetime(data['Date'])
@@ -147,14 +153,24 @@ class DataTransformation() :
 
             train_arr = np.c_[input_feature_train_arr, target_feature_train_arr]
             test_arr = np.c_[input_feature_test_arr, target_feature_test_arr]
-            
+
+            logging.info("Saved the transformed train array to the artifacts folder")
+
+            save_object(self.data_transformation_config.transformed_train_array_path,
+                        train_arr)
+
+            logging.info("Saved the transformed test array to the artifacts folder")
+
+            save_object(self.data_transformation_config.transformed_test_array_path,
+                        test_arr)
+
             logging.info("Saving the data")
 
             save_object (
                 self.data_transformation_config.transformed_data_obj_file_path,
                 preprocessing_obj
             )
-            
+
             logging.info("Data saved successfully into preprocessing_object.pkl")
 
             return (
