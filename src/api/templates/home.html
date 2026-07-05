@@ -96,11 +96,197 @@
 
             <button type="submit">Predict</button>
 
-            <button type="button" onclick="window.location.href='/predict_live'">
-                Predict Live
-            </button>
+            <div class="live-predict-group">
+                <div class="combo" id="cityCombo">
+                    <button type="button" class="combo-trigger" id="comboTrigger"
+                            aria-haspopup="listbox" aria-expanded="false" aria-label="Select a weather station">
+                        <span class="selected-text placeholder" id="selectedText">Select a city (optional)</span>
+                        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+
+                    <div class="combo-panel" id="comboPanel">
+                        <div class="search-row">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="7"/>
+                                <path d="M21 21l-3.8-3.8" stroke-linecap="round"/>
+                            </svg>
+                            <input type="text" id="citySearch" placeholder="Search stations…" autocomplete="off" aria-label="Search stations">
+                        </div>
+                        <ul class="city-list" id="cityList" role="listbox" tabindex="-1"></ul>
+                    </div>
+
+                    <input type="text" id="cityValidator" class="city-validator"
+                           required aria-hidden="true" tabindex="-1" autocomplete="off">
+                </div>
+
+                <button type="button" id="predictLiveBtn">
+                    Predict Live
+                </button>
+            </div>
 
         </form>
     </div>
+
+    <script>
+    (function () {
+        var CITIES = [
+            'Albury', 'BadgerysCreek', 'Cobar', 'CoffsHarbour', 'Moree', 'Newcastle', 'NorahHead',
+            'NorfolkIsland', 'Penrith', 'Richmond', 'Sydney', 'SydneyAirport', 'WaggaWagga',
+            'Williamtown', 'Wollongong', 'Canberra', 'Tuggeranong', 'MountGinini', 'Ballarat',
+            'Bendigo', 'Sale', 'MelbourneAirport', 'Melbourne', 'Mildura', 'Nhil', 'Portland',
+            'Watsonia', 'Dartmoor', 'Brisbane', 'Cairns', 'GoldCoast', 'Townsville', 'Adelaide',
+            'MountGambier', 'Nuriootpa', 'Woomera', 'Albany', 'Witchcliffe', 'PearceRAAF',
+            'PerthAirport', 'Perth', 'SalmonGums', 'Walpole', 'Hobart', 'Launceston',
+            'AliceSprings', 'Darwin', 'Katherine', 'Uluru'
+        ];
+
+        var combo         = document.getElementById('cityCombo');
+        var trigger        = document.getElementById('comboTrigger');
+        var panel          = document.getElementById('comboPanel');
+        var searchInput    = document.getElementById('citySearch');
+        var listEl         = document.getElementById('cityList');
+        var selectedText   = document.getElementById('selectedText');
+        var predictLiveBtn = document.getElementById('predictLiveBtn');
+        var cityValidator  = document.getElementById('cityValidator');
+
+        var filtered = CITIES.slice();
+        var activeIndex = -1;
+        var selectedCity = null;
+        var isOpen = false;
+
+        function escapeRegExp(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function highlight(name, query) {
+            if (!query) return name;
+            var re = new RegExp('(' + escapeRegExp(query) + ')', 'ig');
+            return name.replace(re, '<mark>$1</mark>');
+        }
+
+        function renderList() {
+            var query = searchInput.value.trim();
+            listEl.innerHTML = '';
+
+            if (filtered.length === 0) {
+                var empty = document.createElement('li');
+                empty.className = 'city-empty';
+                empty.textContent = 'No station matches "' + query + '"';
+                listEl.appendChild(empty);
+                return;
+            }
+
+            filtered.forEach(function (city, idx) {
+                var li = document.createElement('li');
+                li.className = 'city-option';
+                li.setAttribute('role', 'option');
+                li.setAttribute('aria-selected', city === selectedCity ? 'true' : 'false');
+                if (idx === activeIndex) li.classList.add('active');
+                li.innerHTML = highlight(city, query);
+
+                li.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                    selectCity(city);
+                });
+                li.addEventListener('mousemove', function () {
+                    if (activeIndex !== idx) {
+                        activeIndex = idx;
+                        updateActiveStyles();
+                    }
+                });
+                listEl.appendChild(li);
+            });
+        }
+
+        function updateActiveStyles() {
+            Array.prototype.forEach.call(listEl.children, function (el, i) {
+                el.classList.toggle('active', i === activeIndex);
+            });
+            var activeEl = listEl.children[activeIndex];
+            if (activeEl && activeEl.scrollIntoView) {
+                activeEl.scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function filterCities() {
+            var q = searchInput.value.trim().toLowerCase();
+            filtered = q ? CITIES.filter(function (c) { return c.toLowerCase().indexOf(q) !== -1; }) : CITIES.slice();
+            activeIndex = filtered.length ? 0 : -1;
+            renderList();
+        }
+
+        function openPanel() {
+            isOpen = true;
+            panel.classList.add('open');
+            trigger.classList.add('open');
+            trigger.setAttribute('aria-expanded', 'true');
+            searchInput.value = '';
+            filterCities();
+            setTimeout(function () { searchInput.focus(); }, 10);
+            document.addEventListener('mousedown', onOutsideClick);
+        }
+
+        function closePanel() {
+            isOpen = false;
+            panel.classList.remove('open');
+            trigger.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+            document.removeEventListener('mousedown', onOutsideClick);
+        }
+
+        function onOutsideClick(e) {
+            if (!combo.contains(e.target)) closePanel();
+        }
+
+        function selectCity(city) {
+            selectedCity = city;
+            selectedText.textContent = city;
+            selectedText.classList.remove('placeholder');
+            cityValidator.value = city;
+            cityValidator.setCustomValidity('');
+            closePanel();
+            trigger.focus();
+        }
+
+        trigger.addEventListener('click', function () {
+            isOpen ? closePanel() : openPanel();
+        });
+
+        searchInput.addEventListener('input', filterCities);
+
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (activeIndex < filtered.length - 1) activeIndex++;
+                updateActiveStyles();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (activeIndex > 0) activeIndex--;
+                updateActiveStyles();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (filtered[activeIndex]) selectCity(filtered[activeIndex]);
+            } else if (e.key === 'Escape') {
+                closePanel();
+                trigger.focus();
+            }
+        });
+
+        predictLiveBtn.addEventListener('click', function () {
+            if (!selectedCity) {
+                cityValidator.value = '';
+                cityValidator.setCustomValidity('Please fill out this field.');
+                cityValidator.reportValidity();
+                return;
+            }
+
+            cityValidator.setCustomValidity('');
+            var url = '/predict_live?location=' + encodeURIComponent(selectedCity);
+            window.location.href = url;
+        });
+    })();
+    </script>
 </body>
 </html>

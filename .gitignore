@@ -5,3 +5,4 @@ catboost_info/
 *.pyc
 *.egg-info/
 *.ruff_cache/
+*.ipynb
