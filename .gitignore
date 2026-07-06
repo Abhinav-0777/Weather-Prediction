@@ -6,3 +6,4 @@ catboost_info/
 *.egg-info/
 *.ruff_cache/
 *.ipynb
+*.env
