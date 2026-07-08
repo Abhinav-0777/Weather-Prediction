@@ -1,15 +1,16 @@
 import os
+import sys
+import time
+import requests
+import pandas as pd
+from datetime import datetime
 from src.logger import logging
+from dataclasses import dataclass
 from src.exception import CustomException
 from src.components.data_transformation import DataTransformation
 from src.components.model_trainer import ModelTrainer
 from src.components.model_evaluation import model_evaluation
-from dataclasses import dataclass
-import pandas as pd
-import sys
 from sklearn.model_selection import train_test_split
-import requests
-from datetime import datetime
 
 
 @dataclass
@@ -80,7 +81,8 @@ class DataIngestion :
             raise CustomException(e,sys)
     
 
-def fetch_weather(latitude:float, longitude:float, hourly_features:list[str], daily_features:list[str]) -> dict :
+
+def fetch_weather(latitude:float, longitude:float, hourly_features:list[str], daily_features:list[str], retries:int = 5) -> dict :
 
     url = "https://api.open-meteo.com/v1/forecast"
 
@@ -94,11 +96,35 @@ def fetch_weather(latitude:float, longitude:float, hourly_features:list[str], da
         "end_date": datetime.now().strftime("%Y-%m-%d")
     }
 
-    response = requests.get(url, params, timeout=10)
+    for attempt in range(retries):
+            
+        try:
 
-    data = response.json()
+            logging.info("Sending the request to the Open-Meteo Weather API")
 
-    return data 
+            response = requests.get(
+                url,
+                params=params,
+                timeout=10
+            )
+            response.raise_for_status()
+
+            logging.info("Successfully got the data, now converting it to json")
+
+            data = response.json()
+
+            return data 
+
+        except Exception as e:
+
+            if attempt == retries-1:
+                logging.error(f"Due to {e} reason the {attempt}th and last attempt has been failed.")
+                raise CustomException(e,sys)
+            
+            wait_time = 3 * (attempt+1)
+            logging.error(f"Attempt {attempt+1}/{retries} failed: {e}. Retrying in {wait_time}s...")
+        
+            time.sleep(wait_time)
 
 
 if __name__ == "__main__" :
