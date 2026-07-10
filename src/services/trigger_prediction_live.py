@@ -1,15 +1,44 @@
 import os
+import sys
 import time
 import requests
 from dotenv import load_dotenv
 from src.logger import logging
 from datetime import datetime, timezone
+from src.exception import CustomException
 
 
 load_dotenv()
 
 APP_URL = os.getenv("APP_URL")
-API_KEY_2 = os.getenv("API_KEY")
+HEALTH_URL = os.getenv("HEALTH_URL")
+API_KEY = os.getenv("API_KEY")
+
+
+def check_health()-> dict:
+    
+    """This function is used to verify that the API is running and responsive.
+
+    Returns:
+        dict: A simple status message confirming the API is live.
+    """
+
+    try:
+        response = requests.get(
+            url=HEALTH_URL,
+            timeout= 360,
+        )
+        if response.status_code == 200:
+            logging.info("The server is awake and running.")
+            return {'Health': 'Ok, The API is running.'}
+
+    except requests.exceptions.RequestException as e:
+        logging.error("Waking up the service failed due to {e}")
+        raise CustomException(e,sys)
+    
+check_health()
+
+
 
 CITIES = [
     'Albury', 'BadgerysCreek', 'Cobar', 'CoffsHarbour', 'Moree',
@@ -34,8 +63,8 @@ for city in CITIES:
         logging.info("Sending the request to /api/predict_live endpoint.")
 
         response = requests.get(
-            APP_URL,
-            headers={"X-API-Key": API_KEY_2},
+            url= APP_URL,
+            headers={"X-API-Key": API_KEY},
             params={"location": city},
             timeout=20
         )
