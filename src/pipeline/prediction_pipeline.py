@@ -35,12 +35,12 @@ class PredictionPipeline :
             features['Month'] = features['Date'].dt.month
             features['Day'] = features['Date'].dt.day
             features['Weekday'] = features['Date'].dt.weekday
-                    
+
             features = features.drop(columns = 'Date')
-
+            
             data_scaled = preprocessor_object.transform(features)
-
-            data_scaled_dataframe = pd.DataFrame(data_scaled, columns=list(features.columns))
+            
+            data_scaled_dataframe = pd.DataFrame(data_scaled, columns=['MinTemp', 'MaxTemp', 'Rainfall', 'Evaporation', 'Sunshine', 'WindGustSpeed', 'WindSpeed9am', 'WindSpeed3pm', 'Humidity9am', 'Humidity3pm', 'Pressure9am', 'Pressure3pm', 'Cloud9am', 'Cloud3pm', 'Temp9am', 'Temp3pm', 'Year', 'Month', 'Day', 'Weekday', 'Location', 'WindGustDir', 'WindDir9am', 'WindDir3pm', 'RainToday'])
 
             logging.info("Running prediction on the scaled data")
 

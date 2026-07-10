@@ -11,7 +11,7 @@ load_dotenv()
 
 logging.info("Getting the API_KEY")
 
-API_KEY_1 = os.getenv("API_KEY")
+API_KEY = os.getenv("API_KEY")
 API_KEY_NAME = "X-API-Key"
 
 logging.info("Extracting the entered API_KEY by the client from the header")
@@ -34,7 +34,7 @@ def verify_api_key(api_key: str = Security(api_key_header)):
 
         logging.info("Checking if the api_key entered by the client is None or != API_KEY")
 
-        if api_key is None or api_key != API_KEY_1:
+        if api_key is None or api_key != API_KEY:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or missing API Key"
