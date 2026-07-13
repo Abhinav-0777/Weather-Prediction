@@ -276,7 +276,7 @@ def prediction_live(request: Request, location:str = None, background_tasks: Bac
         metrics = {
             "timestamp": timestamp,
             "request_id": request_id,
-            "client_type": 'normal_user',
+            "client_type": 'common_user',
             "model_version": 'v1',
             "input_features": result["features"],
             "prediction": result["prediction"],

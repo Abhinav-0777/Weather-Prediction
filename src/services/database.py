@@ -1,11 +1,13 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from src.logger import logging
 from dotenv import load_dotenv
 from src.exception import CustomException
-from sqlalchemy import create_engine, Column, String, Float, JSON, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import create_engine, Column, String, Float, DateTime, func, cast, Integer
+
 
 load_dotenv()
 
@@ -22,6 +24,7 @@ engine = create_engine(
     pool_timeout=30,         
     pool_recycle=1800     
 )
+
 
 def check_connection():
 
@@ -46,6 +49,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+
 class ModelPredictionLog(Base):
     __tablename__ = "model_prediction_logs"
 
@@ -53,7 +57,7 @@ class ModelPredictionLog(Base):
     timestamp = Column(DateTime(timezone=True), nullable=False) 
     client_type = Column(String, nullable=False)
     model_version = Column(String, nullable=False)              
-    input_features = Column(JSON, nullable=False)               
+    input_features = Column(JSONB, nullable=False)               
     predicted_output = Column(String, nullable=False)          
     confidence_score = Column(Float, nullable=False)             
     latency = Column(Float, nullable=False)                    
@@ -62,7 +66,9 @@ class ModelPredictionLog(Base):
 Base.metadata.create_all(bind=engine)
 
 
+
 def save_to_database(metrics_data: dict):
+    
     """
     Executes sequentially on a separate background thread pool.
     Isolated database session management prevents web-thread blockages.
@@ -86,8 +92,36 @@ def save_to_database(metrics_data: dict):
             latency=metrics_data["latency"],
             truth_label=metrics_data["truth_label"]
         )
-        
+
+        logging.info("Adding the data to the session's memory")
+
         db.add(log_record)
+
+        location_to_be_filled = metrics_data["input_features"][0]['Location']
+
+        truth_label_value = metrics_data["input_features"][0]['RainToday']        
+
+        yesterday = db_timestamp.date() - timedelta(days=1)
+
+        logging.info("Getting yesterday's first row with 'None' truth label")
+
+        previous_row = (db.query(ModelPredictionLog)
+                        .filter(
+                            cast(cast(ModelPredictionLog.input_features[0]['Location'].astext, Float), Integer) == location_to_be_filled,
+                            ModelPredictionLog.truth_label.is_(None)
+                        )
+                        .filter(
+                            func.date(ModelPredictionLog.timestamp) == yesterday
+                        )
+                        .first()
+                    )
+        
+        if previous_row:
+            previous_row.truth_label = truth_label_value
+            logging.info(f"Filled truth_label for {location_to_be_filled} ({yesterday}): {truth_label_value}")
+
+        logging.info("Getting the data committed")
+
         db.commit()
 
     except Exception as e:
