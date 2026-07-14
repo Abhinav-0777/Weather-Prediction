@@ -1,13 +1,14 @@
 import os 
 import sys
 import json
+import pandas as pd
 from src.logger import logging
 from src.utils import load_object
 from src.exception import CustomException
 from sklearn.metrics import classification_report, confusion_matrix, fbeta_score
 
 
-def model_evaluation() -> dict:
+def model_evaluation(transformed_test_path) -> dict:
 
     """Evaluates the trained model on the test dataset and saves performance metrics.
        This function loads the transformed test array and the trained model,
@@ -25,8 +26,7 @@ def model_evaluation() -> dict:
 
     try :
     
-        test_path = os.path.join("artifacts","transformed_test_array.npy")
-        test_arr = load_object(test_path)
+        test_arr = load_object(transformed_test_path)
 
         logging.info("Successfully loaded the transformed_test_array object")
 
@@ -66,7 +66,9 @@ def model_evaluation() -> dict:
 
         logging.info("Saved the metrics to the artifacts folder")
 
-        return metrics
+        df = pd.DataFrame({'truth_label': y_test, 'predicted_output': y_pred})
+
+        return df.astype('int64')
 
 
     except Exception as e :
@@ -75,4 +77,4 @@ def model_evaluation() -> dict:
 
 
 if __name__ == "__main__":
-    model_evaluation()
+    model_evaluation("artifacts/transformed_test_array.npy")
