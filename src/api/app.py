@@ -154,7 +154,7 @@ def prediction(
 
 
 @app.get('/predict_live', response_class=HTMLResponse)
-@limiter.limit("5/minute")
+@limiter.limit('5/minute')
 def prediction_live(request: Request, location:str = None, background_tasks: BackgroundTasks = BackgroundTasks()) :
     
     try :
@@ -273,6 +273,16 @@ def prediction_live(request: Request, location:str = None, background_tasks: Bac
 
         top_features = model_interpretability(result["features"])
 
+        for key in list(result.keys()):
+
+            value = result[key]
+            if isinstance(value, np.integer): 
+                result[key] = int(value)
+            elif isinstance(value, np.floating): 
+                result[key] = float(value)
+            elif isinstance(value, pd.DataFrame): 
+                result[key] = value.to_dict(orient="records")
+
         metrics = {
             "timestamp": timestamp,
             "request_id": request_id,
@@ -280,7 +290,7 @@ def prediction_live(request: Request, location:str = None, background_tasks: Bac
             "model_version": 'v1',
             "input_features": result["features"],
             "prediction": result["prediction"],
-            "confidence": result["confidence"],
+            "confidence_score": result["confidence"],
             "latency": (end-start),
             "truth_label": None
         }        
