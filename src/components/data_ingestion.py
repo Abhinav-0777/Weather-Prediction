@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import httpx
 import asyncio
 import pandas as pd
