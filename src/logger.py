@@ -8,8 +8,8 @@ os.makedirs(LOG_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOG_DIR, f"log_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log")
 
 logging.basicConfig(filename=LOG_FILE, 
-                    level=logging.INFO, 
-                    format="[%(asctime)s] %(filename)s - %(levelname)s - %(name)s - %(message)s", 
+                    level=logging.INFO,  
+                    format="[%(asctime)s] %(filename)s:%(lineno)d - %(funcName)s - %(levelname)s - %(message)s",
                     datefmt="%Y-%m-%d %H:%M:%S"
     )
 

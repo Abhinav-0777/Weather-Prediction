@@ -1,7 +1,8 @@
 import os
 import sys
 import time
-import requests
+import httpx
+import asyncio
 import pandas as pd
 from datetime import datetime
 from src.logger import logging
@@ -81,8 +82,11 @@ class DataIngestion :
             raise CustomException(e,sys)
     
 
+logging.info("Creating a client using httpx")
+client = httpx.AsyncClient()
 
-def fetch_weather(latitude:float, longitude:float, hourly_features:list[str], daily_features:list[str], retries:int = 5) -> dict :
+
+async def fetch_weather(latitude:float, longitude:float, hourly_features:list[str], daily_features:list[str], retries:int = 5) -> dict :
 
     url = "https://api.open-meteo.com/v1/forecast"
 
@@ -102,7 +106,7 @@ def fetch_weather(latitude:float, longitude:float, hourly_features:list[str], da
 
             logging.info("Sending the request to the Open-Meteo Weather API")
 
-            response = requests.get(
+            response = await client.get(
                 url,
                 params=params,
                 timeout=10
@@ -124,7 +128,7 @@ def fetch_weather(latitude:float, longitude:float, hourly_features:list[str], da
             wait_time = 3 * (attempt+1)
             logging.error(f"Attempt {attempt+1}/{retries} failed: {e}. Retrying in {wait_time}s...")
         
-            time.sleep(wait_time)
+            await asyncio.sleep(wait_time)
 
 
 if __name__ == "__main__" :

@@ -1,6 +1,7 @@
 import sys
 import time
 import uuid
+import asyncio
 import numpy as np
 import pandas as pd
 from fastapi import Depends
@@ -155,7 +156,7 @@ def prediction(
 
 @app.get('/predict_live', response_class=HTMLResponse)
 @limiter.limit('5/minute')
-def prediction_live(request: Request, location:str = None, background_tasks: BackgroundTasks = BackgroundTasks()) :
+async def prediction_live(request: Request, location:str = None, background_tasks: BackgroundTasks = BackgroundTasks()) :
     
     try :
 
@@ -220,7 +221,7 @@ def prediction_live(request: Request, location:str = None, background_tasks: Bac
 
         logging.info("fetching live data")
 
-        live_data = fetch_weather(
+        live_data = await fetch_weather(
             latitude=latitude,
             longitude=longitude,
             hourly_features=hourly_features,
@@ -264,14 +265,14 @@ def prediction_live(request: Request, location:str = None, background_tasks: Bac
 
         pipeline = PredictionPipeline()
         start = time.perf_counter()
-        result = pipeline.get_prediction(df)
+        result = await asyncio.to_thread(pipeline.get_prediction, df)
         end = time.perf_counter()
 
         logging.info("Successfully predicted the data")
 
         logging.info("Getting the model interpreted")
 
-        top_features = model_interpretability(result["features"])
+        top_features = await asyncio.to_thread(model_interpretability, result["features"])
 
         for key in list(result.keys()):
 
@@ -315,7 +316,8 @@ def prediction_live(request: Request, location:str = None, background_tasks: Bac
 
 
 @app.get('/api/predict_live')
-def prediction_live_with_api(location: Optional[str] = None, background_tasks: BackgroundTasks = BackgroundTasks(), dependencies = Depends(verify_api_key)) -> dict:
+@limiter.limit('100/minute')
+async def prediction_live_with_api(location: Optional[str] = None, background_tasks: BackgroundTasks = BackgroundTasks(), dependencies = Depends(verify_api_key)) -> dict:
     
     try :
 
@@ -380,7 +382,7 @@ def prediction_live_with_api(location: Optional[str] = None, background_tasks: B
 
         logging.info("fetching live data")
 
-        live_data = fetch_weather(
+        live_data = await fetch_weather(
             latitude=latitude,
             longitude=longitude,
             hourly_features=hourly_features,      
@@ -424,7 +426,7 @@ def prediction_live_with_api(location: Optional[str] = None, background_tasks: B
 
         pipeline = PredictionPipeline()
         start = time.perf_counter()
-        result = pipeline.get_prediction(df)
+        result = await asyncio.to_thread(pipeline.get_prediction, df)
         end = time.perf_counter()        
 
         logging.info("Successfully predicted the data")
