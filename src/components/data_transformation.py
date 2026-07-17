@@ -63,7 +63,7 @@ class DataTransformation() :
             return preprocessor
 
         except Exception as e:
-            logging.error("An error has occurred")
+            logging.exception("An error has occurred")
             raise CustomException(e,sys)
         
 
@@ -181,6 +181,6 @@ class DataTransformation() :
         
 
         except Exception as e:
-            logging.error("An error has occurred")
+            logging.exception("An error has occurred")
             raise CustomException(e,sys)
 

@@ -19,7 +19,7 @@ def save_object(file_path, obj) :
     
     
     except Exception as e :
-        logging.info("An error has occurred")
+        logging.exception("An error has occurred")
         raise CustomException(e,sys)
     
 
@@ -55,7 +55,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
     
     except Exception as e :
-        logging.error("An error has occurred")
+        logging.exception("An error has occurred")
         raise CustomException(e,sys)
 
 
@@ -66,7 +66,7 @@ def load_object(file_path) :
             return dill.load(file_obj)
 
     except Exception as e :
-        logging.error("An error has occurred.")
+        logging.exception("An error has occurred.")
         raise CustomException(e,sys)
 
 

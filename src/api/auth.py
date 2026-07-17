@@ -42,9 +42,9 @@ def verify_api_key(api_key: str = Security(api_key_header)):
         return api_key
     
     except HTTPException:
-        logging.error("An HTTPException has occurred.")
+        logging.exception("An HTTPException has occurred.")
         raise 
 
     except Exception as e:
-        logging.error("An error has occurred.")
+        logging.exception("An error has occurred.")
         raise CustomException(e,sys)

@@ -72,7 +72,7 @@ def model_evaluation(transformed_test_path) -> dict:
 
 
     except Exception as e :
-        logging.error("An error has occurred")
+        logging.exception("An error has occurred")
         raise CustomException(e,sys)
 
 

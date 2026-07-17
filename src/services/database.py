@@ -37,7 +37,7 @@ def check_connection():
             logging.info("Connection successful!")
 
     except Exception as e:
-        logging.info(f"Failed to connect to Supabase engine: {e}")
+        logging.exception(f"Failed to connect to Supabase engine: {e}")
         raise CustomException(e,sys)
 
 check_connection()
@@ -126,7 +126,7 @@ def save_to_database(metrics_data: dict):
 
     except Exception as e:
         db.rollback()
-        logging.error(f"[MONITORING FAILED] Couldn't commit metrics log to Supabase: {e}")
+        logging.exception(f"[MONITORING FAILED] Couldn't commit metrics log to Supabase: {e}")
 
     finally:
         db.close() 

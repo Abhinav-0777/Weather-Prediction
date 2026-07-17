@@ -33,7 +33,7 @@ def check_health()-> dict:
             return {'Health': 'Ok, The API is running.'}
 
     except requests.exceptions.RequestException as e:
-        logging.error("Waking up the service failed due to {e}")
+        logging.exception("Waking up the service failed due to {e}")
         raise CustomException(e,sys)
     
 check_health()
@@ -75,7 +75,7 @@ for city in CITIES:
     except Exception as e:
         print(f"[{datetime.now(timezone.utc).isoformat()}] FAILED for {city}: {e}")
         failed_cities.append(city)
-        logging.error(f"Error {e} has occurred.")
+        logging.exception(f"Error {e} has occurred.")
 
     time.sleep(1)  
 

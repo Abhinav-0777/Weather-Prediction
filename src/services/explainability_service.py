@@ -39,5 +39,5 @@ def model_interpretability(features: pd.DataFrame) -> list:
         return top_features
 
     except Exception as e:
-        logging.error("An error has occurred.")
+        logging.exception("An error has occurred.")
         raise CustomException(e,sys)

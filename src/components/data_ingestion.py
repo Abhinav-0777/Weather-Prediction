@@ -77,7 +77,7 @@ class DataIngestion :
         
 
         except Exception as e :
-            logging.error("An error has occurred")
+            logging.exception("An error has occurred")
             raise CustomException(e,sys)
     
 
@@ -121,11 +121,11 @@ async def fetch_weather(latitude:float, longitude:float, hourly_features:list[st
         except Exception as e:
 
             if attempt == retries-1:
-                logging.error(f"Due to {e} reason the {attempt}th and last attempt has been failed.")
+                logging.exception(f"Due to {e} reason the {attempt}th and last attempt has been failed.")
                 raise CustomException(e,sys)
             
             wait_time = 3 * (attempt+1)
-            logging.error(f"Attempt {attempt+1}/{retries} failed: {e}. Retrying in {wait_time}s...")
+            logging.exception(f"Attempt {attempt+1}/{retries} failed: {e}. Retrying in {wait_time}s...")
         
             await asyncio.sleep(wait_time)
 

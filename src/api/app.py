@@ -149,7 +149,7 @@ def prediction(
         )
 
     except Exception as e :
-        logging.error("an error has occurred")
+        logging.exception("an error has occurred")
         raise CustomException(e,sys)
     
 
@@ -310,7 +310,7 @@ async def prediction_live(request: Request, location:str = None, background_task
             )
 
     except Exception as e:
-        logging.error("An error has occurred.")
+        logging.exception("An error has occurred.")
         raise CustomException(e,sys)
 
 
@@ -466,5 +466,5 @@ async def prediction_live_with_api(location: Optional[str] = None, background_ta
         return result
 
     except Exception as e:
-        logging.error("An error has occurred.")
+        logging.exception("An error has occurred.")
         raise CustomException(e,sys)

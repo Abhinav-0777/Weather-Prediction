@@ -156,7 +156,7 @@ class ModelTrainer :
             return best_model_f2_score
 
         except Exception as e :
-            logging.error("An error has occurred")
+            logging.exception("An error has occurred")
             raise CustomException(e,sys)
 
 if __name__ == "__main__" :
