@@ -317,7 +317,7 @@ async def prediction_live(request: Request, location:str = None, background_task
 
 @app.get('/api/predict_live')
 @limiter.limit('100/minute')
-async def prediction_live_with_api(location: Optional[str] = None, background_tasks: BackgroundTasks = BackgroundTasks(), dependencies = Depends(verify_api_key)) -> dict:
+async def prediction_live_with_api(request: Request, location: Optional[str] = None, background_tasks: BackgroundTasks = BackgroundTasks(), dependencies = Depends(verify_api_key)) -> dict:
     
     try :
 

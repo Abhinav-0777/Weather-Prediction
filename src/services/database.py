@@ -1,19 +1,18 @@
-import os
 import sys
-from datetime import datetime, timedelta
 from src.logger import logging
-from dotenv import load_dotenv
+from src.config import get_env
+from datetime import datetime, timedelta
 from src.exception import CustomException
-from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import create_engine, Column, String, Float, DateTime, func, cast, Integer
 
 
-load_dotenv()
+config = get_env()
 
 logging.info("Getting the database_url")
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = config.get("DATABASE_URL")
 
 logging.info("Creating the engine for the database")
 

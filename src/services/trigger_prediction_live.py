@@ -1,18 +1,17 @@
-import os
 import sys
 import time
 import requests
-from dotenv import load_dotenv
 from src.logger import logging
+from src.config import get_env
 from datetime import datetime, timezone
 from src.exception import CustomException
 
 
-load_dotenv()
+config = get_env()
 
-APP_URL = os.getenv("APP_URL")
-HEALTH_URL = os.getenv("HEALTH_URL")
-API_KEY = os.getenv("API_KEY")
+APP_URL = config.get("APP_URL")
+HEALTH_URL = config.get("HEALTH_URL")
+API_KEY = config.get("API_KEY")
 
 
 def check_health()-> dict:

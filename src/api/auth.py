@@ -1,17 +1,16 @@
-import os
 import sys
+from src.config import get_env
+from src.logger import logging
 from fastapi import Security, HTTPException, status
 from fastapi.security import APIKeyHeader
-from dotenv import load_dotenv
-from src.logger import logging
 from src.exception import CustomException
 
 
-load_dotenv()
+config = get_env()
 
 logging.info("Getting the API_KEY")
 
-API_KEY = os.getenv("API_KEY")
+API_KEY = config.get("API_KEY")
 API_KEY_NAME = "X-API-Key"
 
 logging.info("Extracting the entered API_KEY by the client from the header")
