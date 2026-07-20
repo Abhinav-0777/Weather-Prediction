@@ -1,11 +1,13 @@
-import sys
 import os
+import sys
+import yaml
 import dill
 import pandas as pd
-from src.exception import CustomException
 from src.logger import logging
-from sklearn.metrics import fbeta_score, make_scorer
+from src.exception import CustomException
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import fbeta_score, make_scorer
+
 
 def save_object(file_path, obj) :
     
@@ -82,4 +84,19 @@ def get_data_Features(train_path) :
         return features_list
 
     except Exception as e :
+        raise CustomException(e,sys)
+    
+
+def load_config(config_path: str = "config.yaml")-> dict:
+
+    try:
+        with open(config_path, "r") as f:
+            return yaml.safe_load(f)
+
+    except FileNotFoundError as e:
+        logging.exception(f"Config file not found at {config_path}")
+        raise CustomException(e,sys)
+    
+    except yaml.YAMLError as e:
+        logging.exception(f"Error parsing yaml {e}")
         raise CustomException(e,sys)
