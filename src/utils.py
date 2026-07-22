@@ -3,6 +3,7 @@ import sys
 import yaml
 import dill
 import pandas as pd
+from functools import lru_cache
 from src.logger import logging
 from src.exception import CustomException
 from sklearn.model_selection import GridSearchCV
@@ -87,6 +88,7 @@ def get_data_Features(train_path) :
         raise CustomException(e,sys)
     
 
+@lru_cache(maxsize=1)
 def load_config(config_path: str = "config.yaml")-> dict:
 
     try:
