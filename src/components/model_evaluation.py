@@ -2,11 +2,14 @@ import os
 import sys
 import json
 import pandas as pd
+from src.utils import load_config
 from src.logger import logging
 from src.utils import load_object
 from src.exception import CustomException
 from sklearn.metrics import classification_report, confusion_matrix, fbeta_score
 
+
+config = load_config()
 
 def model_evaluation(transformed_test_path) -> dict:
 
@@ -66,9 +69,13 @@ def model_evaluation(transformed_test_path) -> dict:
 
         logging.info("Saved the metrics to the artifacts folder")
 
-        df = pd.DataFrame({'truth_label': y_test, 'predicted_output': y_pred})
+        df_eval = pd.DataFrame({'truth_label': y_test, 'predicted_output': y_pred})
 
-        return df.astype('int64')
+        df = df_eval.astype('int64')
+
+        df.to_csv(f"src/monitoring/baselines/predictions_baseline_{config['model_version']}.csv", header=True, index=None)
+
+        return df
 
 
     except Exception as e :
