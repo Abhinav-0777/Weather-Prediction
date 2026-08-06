@@ -15,7 +15,12 @@ class PredictionPipeline :
         """This function gets the user data as arguement and runs prediction on it .
 
         Returns:
-            list : the prediction of the model on that particular data .
+
+            dict : with these following keys 
+                 
+                prediction : the prediction of the model on that particular data
+                features : the scaled dataframe of that particular data
+                confidence : the confidence value of the prediction 
         """
 
         try :

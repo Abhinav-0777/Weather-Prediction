@@ -99,7 +99,7 @@ async def fetch_weather(latitude:float, longitude:float, hourly_features:list[st
         "end_date": datetime.now().strftime("%Y-%m-%d")
     }
 
-    for attempt in range(retries):
+    for attempt in range(retries): 
             
         try:
 
