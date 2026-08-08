@@ -53,5 +53,5 @@ def test_get_prediction(sample_features):
                                                  'Humidity3pm', 'Pressure9am', 'Pressure3pm', 'Cloud9am', 'Cloud3pm', 
                                                  'Temp9am', 'Temp3pm', 'Year', 'Month', 'Day', 'Weekday', 'Location', 
                                                  'WindGustDir', 'WindDir9am', 'WindDir3pm', 'RainToday'])
-    assert (all(isinstance(result['features'][col], (int, float)) for col in result['features'].columns))
+    assert (all(result['features'][col].dtype == np.float64 for col in result['features'].columns))
     assert (result['features'].shape == (1,25))
