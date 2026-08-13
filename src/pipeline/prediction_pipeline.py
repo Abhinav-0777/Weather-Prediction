@@ -1,16 +1,19 @@
-import pandas as pd
 import sys
-import os
-from src.exception import CustomException
+import pandas as pd
 from src.logger import logging
 from src.utils import load_object
+from src.utils import load_config
+from src.exception import CustomException
+
+
+config = load_config()
 
 class PredictionPipeline :
 
     def __init__(self) :
         pass 
 
-    def get_prediction(self, features) :
+    def get_prediction(self, features) -> dict:
         
         """This function gets the user data as arguement and runs prediction on it .
 
@@ -24,13 +27,9 @@ class PredictionPipeline :
         """
 
         try :
-            model_path = os.path.join("artifacts","model.pkl")
-            preprocessor_path = os.path.join("artifacts","preprocessing_object.pkl")
-            
-            logging.info("loading the model path and preprocessor object")
 
-            model_obj = load_object(model_path)
-            preprocessor_object = load_object(preprocessor_path)
+            model_obj = load_object(config['model_path'])
+            preprocessor_object = load_object(config['preprocessor_path'])
 
             logging.info("Applying the data transformation on the user entered data")
 
@@ -45,8 +44,7 @@ class PredictionPipeline :
             
             data_scaled = preprocessor_object.transform(features)
             
-            data_scaled_dataframe = pd.DataFrame(data_scaled, columns=['MinTemp', 'MaxTemp', 'Rainfall', 'Evaporation', 'Sunshine', 'WindGustSpeed', 'WindSpeed9am', 'WindSpeed3pm', 'Humidity9am', 'Humidity3pm', 'Pressure9am', 'Pressure3pm', 'Cloud9am', 'Cloud3pm', 'Temp9am', 'Temp3pm', 'Year', 'Month', 'Day', 'Weekday', 'Location', 'WindGustDir', 'WindDir9am', 'WindDir3pm', 'RainToday'])
-
+            data_scaled_dataframe = pd.DataFrame(data_scaled, columns=config['column_names'])
             logging.info("Running prediction on the scaled data")
 
             preds = model_obj.predict(data_scaled)
@@ -63,5 +61,21 @@ class PredictionPipeline :
         
 
         except Exception as e :
+            logging.exception("An error has occurred while getting the prediction from the model")
             raise CustomException(e,sys)
-        
+
+
+if __name__ == "__main__":
+
+    logging.info("Running prediction_pipeline.py as a standalone script")
+
+    test_data = pd.read_csv(config['test_path'])
+    logging.info(f"Loaded test data with {test_data.shape[0]} rows and {test_data.shape[1]} columns")
+
+    row_0 = test_data.iloc[[0]]
+    logging.info("Extracted first row from test data for prediction")
+
+    PredictionPipeline_obj = PredictionPipeline()
+    result = PredictionPipeline_obj.get_prediction(row_0)
+
+    logging.info(f"Prediction: {result['prediction']}, Confidence: {result['confidence']}")
