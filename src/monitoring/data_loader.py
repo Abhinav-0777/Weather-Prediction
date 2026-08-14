@@ -134,3 +134,50 @@ def get_reference_train_dataframe(reference_path) -> pd.DataFrame:
     except Exception as e:
         logging.exception("An error occurred while generating reference_train_dataframe")
         raise CustomException(e, sys)
+
+
+def get_confidence_score_current_data(session, table_name, model_version) -> pd.DataFrame:
+
+    db = None
+    
+    try:
+        logging.info("Creating a new session to fetch confidence_score")
+        db = session()
+
+        confidence_score_query = (
+            db.query(table_name.confidence_score, table_name.timestamp)
+            .filter(table_name.model_version == model_version)
+            .filter(table_name.client_type == "authorized_client")
+        )
+
+        confidence_score_dataframe = pd.read_sql(confidence_score_query.statement, db.bind)
+
+        logging.info(f"Fetched {len(confidence_score_dataframe)} confidence_score rows "
+                     f"for model_version={model_version}")
+
+        return confidence_score_dataframe
+
+    except Exception as e:
+        logging.exception("An error has occurred while getting confidence_score metric from Supabase")
+        raise CustomException(e, sys)
+
+    finally:
+        if db:
+            logging.info("Closing the database session")
+            db.close()
+
+
+def get_confidence_score_reference_data(reference_path) -> pd.DataFrame:
+
+    try:
+        logging.info(f"Loading reference confidence_score data from {reference_path}")
+
+        confidence_score_reference_data = pd.read_csv(reference_path)
+
+        logging.info(f"Loaded reference data: {confidence_score_reference_data.shape[0]} rows")
+
+        return confidence_score_reference_data
+
+    except Exception as e:
+        logging.exception("An error has occurred while loading reference confidence_score data")
+        raise CustomException(e, sys)
