@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from src.utils import save_object
 from src.exception import CustomException
-from src.monitoring.data_loader import get_reference_evaluation_dataframe, get_reference_train_dataframe
+from src.monitoring.evidently.data_loader import get_reference_evaluation_dataframe, get_reference_train_dataframe
 
 
 
