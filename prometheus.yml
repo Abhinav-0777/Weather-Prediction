@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 300s
+  evaluation_interval: 300s
+
+scrape_configs:
+  - job_name: 'prometheus_monitoring_on_weather_prediction'
+    scheme: 'https'
+    metrics_path: '/metrics'
+    static_configs: 
+      - targets: ['weather-actions-latest.onrender.com'] 

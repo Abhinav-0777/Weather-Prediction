@@ -16,7 +16,13 @@ from src.api.auth import verify_api_key
 from src.exception import CustomException
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
+from prometheus_client import make_asgi_app
 from fastapi.staticfiles import StaticFiles
+from src.monitoring.prometheus.metrics import (
+    prediction_latency,
+    confidence_score_metric,
+    client_requests
+)
 from fastapi.templating import Jinja2Templates
 from src.services.database import save_to_database
 from src.components.data_ingestion import fetch_weather
@@ -25,6 +31,11 @@ from src.services.explainability_service import model_interpretability
 
 
 app = FastAPI()
+
+prometheus_metrics_app = make_asgi_app()
+app.mount('/metrics', prometheus_metrics_app)
+
+logging.info("Prometheus /metrics endpoint mounted successfully")
 
 logging.info("mounting the static folder to our web app")
 
@@ -294,7 +305,17 @@ async def prediction_live(request: Request, location:str = None, background_task
             "confidence_score": result["confidence"],
             "latency": (end-start),
             "truth_label": None
-        }        
+        }      
+
+        logging.info("Recording Prometheus metrics for this request")
+
+        prediction_latency.labels(model_version=metrics["model_version"], client_type=metrics["client_type"]).observe(metrics['latency'])
+        confidence_score_metric.labels(model_version=metrics["model_version"]).observe(metrics['confidence_score'])
+        client_requests.labels(client_type=metrics['client_type']).inc()
+
+        logging.info(f"Prometheus metrics recorded — latency={metrics['latency']:.4f}s, "
+                     f"confidence_score={metrics['confidence_score']:.4f}, client_type={metrics['client_type']}")
+  
 
         logging.info("Saving the predictions data and other metrics to Supabase")
 
@@ -456,6 +477,15 @@ async def prediction_live_with_api(request: Request, location: Optional[str] = N
             "latency": (end-start),
             "truth_label": None
         }
+
+        logging.info("Recording Prometheus metrics for this request")
+
+        prediction_latency.labels(model_version=metrics["model_version"], client_type=metrics["client_type"]).observe(metrics['latency'])
+        confidence_score_metric.labels(model_version=metrics["model_version"]).observe(metrics['confidence_score'])
+        client_requests.labels(client_type=metrics['client_type']).inc()
+
+        logging.info(f"Prometheus metrics recorded — latency={metrics['latency']:.4f}s, "
+                     f"confidence_score={metrics['confidence_score']:.4f}, client_type={metrics['client_type']}")
 
         logging.info("Saving the predictions data and other metrics to Supabase")
 
