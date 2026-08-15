@@ -7,3 +7,5 @@ catboost_info/
 *.ruff_cache/
 *.ipynb
 *.env
+logs/
+reports/
