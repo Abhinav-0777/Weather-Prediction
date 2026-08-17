@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Weather_Prediction_ml_project"
+version = "1.0.0"
+description = "A machine learning project for predicting weather conditions"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [
+    { name = "Abhinav Bisht" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "numpy>=2.4.2",
+    "pandas>=3.0.1",
+    "scikit-learn>=1.8.0",
+    "scipy>=1.17.1",
+    "xgboost>=3.2.0",
+    "lightgbm>=4.6.0",
+    "catboost>=1.2.10",
+    "matplotlib>=3.10.8",
+    "shap>=0.51.0",
+    "evidently>=0.7.21",
+    "pydantic>=2.12.5",
+]
+
+[tool.setuptools]
+packages = ["Weather_Prediction_ml_project"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = [
+    "E",    # Style errors (PEP 8)
+    "W",    # Style warnings (PEP 8)
+    "F",    # Critical logic bugs (Unused imports, missing variables)
+    "I",    # Strict import sorting
+    "UP",   # Upgrades old Python syntax automatically
+    "SIM",  # Code simplification checks
+]
+ignore = [
+    "E501", # Ignore strict line length limit for heavy code/ML data arrays
+]
+
+# Explicit file overrides for testing environments
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allows necessary assert statements inside your testing directory
+
+[tool.pytest.ini_options]
+addopts = "-v"
+testpaths = ["tests"]
