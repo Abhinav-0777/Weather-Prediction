@@ -1,11 +1,12 @@
 import sys
 import time
-import requests
-from src.logger import logging
-from src.config import get_env
-from datetime import datetime, timezone
-from src.exception import CustomException
+from datetime import UTC, datetime
 
+import requests
+
+from src.config import get_env
+from src.exception import CustomException
+from src.logger import logging
 
 config = get_env()
 
@@ -15,7 +16,7 @@ API_KEY = config.get("API_KEY")
 
 
 def check_health()-> dict:
-    
+
     """This function is used to verify that the API is running and responsive.
 
     Returns:
@@ -34,7 +35,7 @@ def check_health()-> dict:
     except requests.exceptions.RequestException as e:
         logging.exception("Waking up the service failed due to {e}")
         raise CustomException(e,sys)
-    
+
 check_health()
 
 
@@ -68,15 +69,15 @@ for city in CITIES:
             timeout=20
         )
         response.raise_for_status()
-        print(f"[{datetime.now(timezone.utc).isoformat()}] {city}: {response.json()}")
+        print(f"[{datetime.now(UTC).isoformat()}] {city}: {response.json()}")
         success_count += 1
 
     except Exception as e:
-        print(f"[{datetime.now(timezone.utc).isoformat()}] FAILED for {city}: {e}")
+        print(f"[{datetime.now(UTC).isoformat()}] FAILED for {city}: {e}")
         failed_cities.append(city)
         logging.exception(f"Error {e} has occurred.")
 
-    time.sleep(1)  
+    time.sleep(1)
 
 print(f"\nDone. Success: {success_count}/{len(CITIES)}")
 if failed_cities:

@@ -1,25 +1,19 @@
 import os
 import sys
-import pandas as pd
 from datetime import datetime
-from src.logger import logging
-from src.utils import load_config
-from src.exception import CustomException
+
+import pandas as pd
+from evidently import DataDefinition, Dataset, Report
 from evidently.presets import DataDriftPreset
-from src.services.database import (
-    SessionLocal,
-    ModelPredictionLog
-)
-from evidently import (
-    Report,
-    DataDefinition,
-    Dataset
-)
 from src.monitoring.data_loader import (
     get_current_dataframe,
-    get_reference_train_dataframe
+    get_reference_train_dataframe,
 )
 
+from src.exception import CustomException
+from src.logger import logging
+from src.services.database import ModelPredictionLog, SessionLocal
+from src.utils import load_config
 
 logging.info("Loading the config.yaml file")
 config = load_config()

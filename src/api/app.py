@@ -1,34 +1,32 @@
+import asyncio
 import sys
 import time
 import uuid
-import asyncio
+from datetime import UTC, datetime
+
 import numpy as np
 import pandas as pd
-from fastapi import Depends
-from typing import Optional
-from src.logger import logging
+from fastapi import BackgroundTasks, Depends, FastAPI, Form, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from prometheus_client import make_asgi_app
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from fastapi import BackgroundTasks
-from src.schema import data_validation
-from datetime import datetime, timezone
-from src.api.auth import verify_api_key
-from src.exception import CustomException
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
-from prometheus_client import make_asgi_app
-from fastapi.staticfiles import StaticFiles
-from src.monitoring.prometheus.metrics import (
-    prediction_latency,
-    confidence_score_metric,
-    client_requests
-)
-from fastapi.templating import Jinja2Templates
-from src.services.database import save_to_database
-from src.components.data_ingestion import fetch_weather
-from src.pipeline.prediction_pipeline import PredictionPipeline
-from src.services.explainability_service import model_interpretability
 
+from src.api.auth import verify_api_key
+from src.components.data_ingestion import fetch_weather
+from src.exception import CustomException
+from src.logger import logging
+from src.monitoring.prometheus.metrics import (
+    client_requests,
+    confidence_score_metric,
+    prediction_latency,
+)
+from src.pipeline.prediction_pipeline import PredictionPipeline
+from src.schema import data_validation
+from src.services.database import save_to_database
+from src.services.explainability_service import model_interpretability
 
 app = FastAPI()
 
@@ -52,7 +50,7 @@ def health() :
 @app.on_event("startup")
 def startup_event() :
     global app_start_time
-    app_start_time = datetime.now() 
+    app_start_time = datetime.now()
 
 def format_uptime(delta):
     total_seconds = int(delta.total_seconds())
@@ -72,14 +70,14 @@ def info() :
 @app.get("/", response_class=HTMLResponse)
 def home(request : Request) :
     return templates.TemplateResponse("home.html", {"request":request})
-    
+
 
 
 limiter = Limiter(key_func=get_remote_address)
 
 @app.post('/predict', response_class=HTMLResponse)
 @limiter.limit("5/minute")
-def prediction( 
+def prediction(
     request: Request,
 
     Date: str = Form(...),
@@ -142,7 +140,7 @@ def prediction(
         logging.info("getting the predition from the model")
 
         pipeline = PredictionPipeline()
-        result = pipeline.get_prediction(df)  
+        result = pipeline.get_prediction(df)
 
         logging.info("Successfully predicted the data")
 
@@ -162,16 +160,16 @@ def prediction(
     except Exception as e :
         logging.exception("an error has occurred")
         raise CustomException(e,sys)
-    
+
 
 
 @app.get('/predict_live', response_class=HTMLResponse)
 @limiter.limit('5/minute')
 async def prediction_live(request: Request, location:str = None, background_tasks: BackgroundTasks = BackgroundTasks()) :
-    
+
     try :
 
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
         request_id = str(uuid.uuid4())
 
         CITY_COORDS = {
@@ -288,11 +286,11 @@ async def prediction_live(request: Request, location:str = None, background_task
         for key in list(result.keys()):
 
             value = result[key]
-            if isinstance(value, np.integer): 
+            if isinstance(value, np.integer):
                 result[key] = int(value)
-            elif isinstance(value, np.floating): 
+            elif isinstance(value, np.floating):
                 result[key] = float(value)
-            elif isinstance(value, pd.DataFrame): 
+            elif isinstance(value, pd.DataFrame):
                 result[key] = value.to_dict(orient="records")
 
         metrics = {
@@ -305,7 +303,7 @@ async def prediction_live(request: Request, location:str = None, background_task
             "confidence_score": result["confidence"],
             "latency": (end-start),
             "truth_label": None
-        }      
+        }
 
         logging.info("Recording Prometheus metrics for this request")
 
@@ -315,7 +313,7 @@ async def prediction_live(request: Request, location:str = None, background_task
 
         logging.info(f"Prometheus metrics recorded — latency={metrics['latency']:.4f}s, "
                      f"confidence_score={metrics['confidence_score']:.4f}, client_type={metrics['client_type']}")
-  
+
 
         logging.info("Saving the predictions data and other metrics to Supabase")
 
@@ -338,11 +336,11 @@ async def prediction_live(request: Request, location:str = None, background_task
 
 @app.get('/api/predict_live')
 @limiter.limit('100/minute')
-async def prediction_live_with_api(request: Request, location: Optional[str] = None, background_tasks: BackgroundTasks = BackgroundTasks(), dependencies = Depends(verify_api_key)) -> dict:
-    
+async def prediction_live_with_api(request: Request, location: str | None = None, background_tasks: BackgroundTasks = BackgroundTasks(), dependencies = Depends(verify_api_key)) -> dict:
+
     try :
 
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
         request_id = str(uuid.uuid4())
 
         CITY_COORDS = {
@@ -406,7 +404,7 @@ async def prediction_live_with_api(request: Request, location: Optional[str] = N
         live_data = await fetch_weather(
             latitude=latitude,
             longitude=longitude,
-            hourly_features=hourly_features,      
+            hourly_features=hourly_features,
             daily_features=daily_features
         )
 
@@ -448,7 +446,7 @@ async def prediction_live_with_api(request: Request, location: Optional[str] = N
         pipeline = PredictionPipeline()
         start = time.perf_counter()
         result = await asyncio.to_thread(pipeline.get_prediction, df)
-        end = time.perf_counter()        
+        end = time.perf_counter()
 
         logging.info("Successfully predicted the data")
 
@@ -457,15 +455,15 @@ async def prediction_live_with_api(request: Request, location: Optional[str] = N
         for key in list(result.keys()):
 
             value = result[key]
-            if isinstance(value, np.integer): 
+            if isinstance(value, np.integer):
                 result[key] = int(value)
-            elif isinstance(value, np.floating): 
+            elif isinstance(value, np.floating):
                 result[key] = float(value)
-            elif isinstance(value, pd.DataFrame): 
+            elif isinstance(value, pd.DataFrame):
                 result[key] = value.to_dict(orient="records")
 
         logging.info("Getting the features rolled in.")
-        
+
         metrics = {
             "timestamp": timestamp,
             "request_id": request_id,

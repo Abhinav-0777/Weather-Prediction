@@ -1,24 +1,18 @@
 import os
 import sys
 from datetime import datetime
-from src.logger import logging
-from src.utils import load_config
-from src.exception import CustomException
+
+from evidently import DataDefinition, Dataset, Report
 from evidently.metrics import ValueDrift
-from src.services.database import (
-    SessionLocal,
-    ModelPredictionLog
-)
 from src.monitoring.data_loader import (
     get_current_dataframe,
-    get_reference_evaluation_dataframe
-)
-from evidently import (
-    Report,
-    DataDefinition,
-    Dataset
+    get_reference_evaluation_dataframe,
 )
 
+from src.exception import CustomException
+from src.logger import logging
+from src.services.database import ModelPredictionLog, SessionLocal
+from src.utils import load_config
 
 logging.info("Loading the config.yaml file")
 config = load_config()

@@ -1,12 +1,13 @@
 import os
-import pytest
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
+import pytest
+
 from src.components.data_transformation import DataTransformation
 from src.components.model_trainer import ModelTrainer
 from src.exception import CustomException
-
 
 
 @pytest.fixture
@@ -41,14 +42,14 @@ def mock_evaluate_models(monkeypatch: pytest.MonkeyPatch) :
 
         return {'Random Forest':0.8,
                 'Logistic Regression':0.7}
-    
+
     monkeypatch.setattr("src.components.model_trainer.evaluate_models",
                         dummy_evaluate_models)
 
 
 @pytest.fixture
 def prepare_transformed_data(tmp_path: Path, mock_save_object: None):
-    
+
     train_path = os.path.join(tmp_path, "train.csv")
     test_path = os.path.join(tmp_path, "test.csv")
 
@@ -74,7 +75,7 @@ def prepare_transformed_data(tmp_path: Path, mock_save_object: None):
         train_path=str(train_path),
         test_path=str(test_path)
     )
-    
+
     return train_arr, test_arr, preprocessor_path
 
 
@@ -100,10 +101,10 @@ def test_low_accuracy_case(prepare_transformed_data: tuple[np.array, np.array, s
 
     def fake_evaluate_models(*args, **kwargs) :
         return {'Logistic Regression': 0.5}
-    
+
     monkeypatch.setattr('src.components.model_trainer.evaluate_models',
                         fake_evaluate_models)
-    
+
     train_arr, test_arr, preprocessor_path = prepare_transformed_data
 
     model_trainer_object = ModelTrainer()

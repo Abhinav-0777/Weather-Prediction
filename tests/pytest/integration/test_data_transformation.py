@@ -1,11 +1,12 @@
 import os
-from pathlib import Path 
+from pathlib import Path
+
 import numpy as np
-import pytest
 import pandas as pd
+import pytest
+
 from src.components.data_transformation import DataTransformation
 from src.exception import CustomException
-
 
 
 @pytest.fixture
@@ -50,7 +51,7 @@ def mock_save_object(monkeypatch : pytest.MonkeyPatch) :
 
 
 def test_get_data_transformer_object() :
-    
+
     numerical_columns = ["MaxTemp"]
     categorical_columns = ["WindDir", "RainTomorrow"]
 
@@ -68,7 +69,7 @@ def test_get_data_transformer_object() :
 
 
 def test_initiate_data_transformation(sample_data: tuple[str, str], mock_save_object: None) :
-    
+
     train_path, test_path = sample_data
 
     data_transformer_object = DataTransformation()
@@ -85,7 +86,7 @@ def test_initiate_data_transformation(sample_data: tuple[str, str], mock_save_ob
 
 
 
-def test_no_null_values(sample_data: tuple[str, str], mock_save_object: None) : 
+def test_no_null_values(sample_data: tuple[str, str], mock_save_object: None) :
 
     train_path, test_path = sample_data
 
@@ -97,7 +98,7 @@ def test_no_null_values(sample_data: tuple[str, str], mock_save_object: None) :
     )
 
     assert not np.isnan(train_arr).any()
-    assert not np.isnan(test_arr).any()    
+    assert not np.isnan(test_arr).any()
 
 
 

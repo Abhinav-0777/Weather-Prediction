@@ -1,4 +1,4 @@
-from prometheus_client import Histogram, Counter
+from prometheus_client import Counter, Histogram
 
 prediction_latency = Histogram(
     'prediction_latency_seconds',

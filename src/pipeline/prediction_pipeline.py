@@ -1,29 +1,29 @@
 import sys
-import pandas as pd
-from src.logger import logging
-from src.utils import load_object
-from src.utils import load_config
-from src.exception import CustomException
 
+import pandas as pd
+
+from src.exception import CustomException
+from src.logger import logging
+from src.utils import load_config, load_object
 
 config = load_config()
 
 class PredictionPipeline :
 
     def __init__(self) :
-        pass 
+        pass
 
     def get_prediction(self, features) -> dict:
-        
+
         """This function gets the user data as arguement and runs prediction on it .
 
         Returns:
 
-            dict : with these following keys 
-                 
+            dict : with these following keys
+
                 prediction : the prediction of the model on that particular data
                 features : the scaled dataframe of that particular data
-                confidence : the confidence value of the prediction 
+                confidence : the confidence value of the prediction
         """
 
         try :
@@ -41,9 +41,9 @@ class PredictionPipeline :
             features['Weekday'] = features['Date'].dt.weekday
 
             features = features.drop(columns = 'Date')
-            
+
             data_scaled = preprocessor_object.transform(features)
-            
+
             data_scaled_dataframe = pd.DataFrame(data_scaled, columns=config['column_names'])
             logging.info("Running prediction on the scaled data")
 
@@ -58,7 +58,7 @@ class PredictionPipeline :
                     "features": data_scaled_dataframe,
                     "confidence": confidence
                 }
-        
+
 
         except Exception as e :
             logging.exception("An error has occurred while getting the prediction from the model")

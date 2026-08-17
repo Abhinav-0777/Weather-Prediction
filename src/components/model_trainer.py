@@ -1,18 +1,23 @@
-import sys 
 import os
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import AdaBoostClassifier,RandomForestClassifier,GradientBoostingClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from xgboost import XGBClassifier
-from catboost import CatBoostClassifier
-from sklearn.metrics import fbeta_score
-
+import sys
 from dataclasses import dataclass
-from src.logger import logging
+
+from catboost import CatBoostClassifier
+from sklearn.ensemble import (
+    AdaBoostClassifier,
+    GradientBoostingClassifier,
+    RandomForestClassifier,
+)
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import fbeta_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
+
 from src.exception import CustomException
-from src.utils import save_object, evaluate_models
+from src.logger import logging
+from src.utils import evaluate_models, save_object
+
 
 @dataclass
 class ModelTrainerConfig :
@@ -56,7 +61,7 @@ class ModelTrainer :
 
             X_train, y_train, X_test, y_test = [
                 train_array[:,:-1],
-                train_array[:,-1], 
+                train_array[:,-1],
                 test_array[:,:-1],
                 test_array[:,-1]
             ]
@@ -71,7 +76,7 @@ class ModelTrainer :
                 'CatBoost' : CatBoostClassifier(verbose=False, scale_pos_weight=3.46, task_type='GPU', random_state=42),
                 'AdaBoost' : AdaBoostClassifier(estimator=DecisionTreeClassifier(max_depth=1, class_weight='balanced'), random_state=42),
                 'GradientBoosting' : GradientBoostingClassifier(random_state=42)
-            
+
             }
 
             params = {
@@ -121,7 +126,7 @@ class ModelTrainer :
                     }
 
             }
-            
+
             model_report : dict = evaluate_models(
                 X_train=X_train,
                 y_train=y_train,
@@ -139,14 +144,14 @@ class ModelTrainer :
 
             if best_model_score < 0.6 :
                 raise CustomException("No good model exists currently")
-            
+
             logging.info("Saving the best model")
-            
+
             save_object(
                 file_path=self.model_trainer_config.trained_model_file_path,
                 obj=best_model
             )
-            
+
             best_model_prediction = best_model.predict(X_test)
 
             best_model_f2_score = fbeta_score(y_test, best_model_prediction, beta=2)

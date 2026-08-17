@@ -1,10 +1,11 @@
 import sys
-from src.config import get_env
-from src.logger import logging
-from fastapi import Security, HTTPException, status
-from fastapi.security import APIKeyHeader
-from src.exception import CustomException
 
+from fastapi import HTTPException, Security, status
+from fastapi.security import APIKeyHeader
+
+from src.config import get_env
+from src.exception import CustomException
+from src.logger import logging
 
 config = get_env()
 
@@ -19,7 +20,7 @@ api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 
 def verify_api_key(api_key: str = Security(api_key_header)):
-    
+
     """Verifying the api_key entered by the client matches the API_KEY given to it.
 
     Raises:
@@ -39,10 +40,10 @@ def verify_api_key(api_key: str = Security(api_key_header)):
                 detail="Invalid or missing API Key"
             )
         return api_key
-    
+
     except HTTPException:
         logging.exception("An HTTPException has occurred.")
-        raise 
+        raise
 
     except Exception as e:
         logging.exception("An error has occurred.")

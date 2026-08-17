@@ -1,24 +1,18 @@
 import os
 import sys
 from datetime import datetime
-from src.logger import logging
-from src.utils import load_config
+
+from evidently import DataDefinition, Dataset, Report
 from evidently.metrics import ValueDrift
-from src.exception import CustomException
-from evidently import (
-    Report,
-    DataDefinition,
-    Dataset
-)
-from src.services.database import(
-    SessionLocal,
-    ModelPredictionLog
-)
 from src.monitoring.data_loader import (
     get_confidence_score_current_data,
-    get_confidence_score_reference_data
+    get_confidence_score_reference_data,
 )
 
+from src.exception import CustomException
+from src.logger import logging
+from src.services.database import ModelPredictionLog, SessionLocal
+from src.utils import load_config
 
 config = load_config()
 
@@ -34,7 +28,7 @@ def plotting_confidence_score(session, table_name, reference_path, model_version
 
         reference_dataframe_final = get_confidence_score_reference_data(reference_path=reference_path)
         logging.info(f"Loaded reference data: {reference_dataframe_final.shape[0]} rows")
-      
+
         data_definition = DataDefinition(
             numerical_columns = ['confidence_score']
         )

@@ -1,30 +1,32 @@
 import os
 import sys
-import yaml
+from functools import lru_cache
+
 import dill
 import pandas as pd
-from functools import lru_cache
-from src.logger import logging
-from src.exception import CustomException
-from sklearn.model_selection import GridSearchCV
+import yaml
 from sklearn.metrics import fbeta_score, make_scorer
+from sklearn.model_selection import GridSearchCV
+
+from src.exception import CustomException
+from src.logger import logging
 
 
 def save_object(file_path, obj) :
-    
+
     try:
         FILE_DIR = os.path.dirname(file_path)
 
         os.makedirs(FILE_DIR, exist_ok=True)
-    
+
         with open(file_path, "wb") as file_obj :
             dill.dump(obj, file_obj)
-    
-    
+
+
     except Exception as e :
         logging.exception("An error has occurred")
         raise CustomException(e,sys)
-    
+
 
 
 def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
@@ -37,7 +39,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
             model = list(models.values())[i]
             para = list(params.values())[i]
-  
+
             f2_scorer = make_scorer(fbeta_score, beta=2)
 
             gs = GridSearchCV(model, para, cv=5, scoring=f2_scorer, verbose=2, n_jobs= 4 if list(models.keys())[i] in ['XGBoost','CatBoost'] else -1)
@@ -56,7 +58,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
         return model_report
 
-    
+
     except Exception as e :
         logging.exception("An error has occurred")
         raise CustomException(e,sys)
@@ -76,7 +78,7 @@ def load_object(file_path) :
 def get_data_Features(train_path) :
 
     try :
-        data = pd.read_csv(train_path) 
+        data = pd.read_csv(train_path)
 
         features_index = data.columns[:-1]
 
@@ -86,19 +88,19 @@ def get_data_Features(train_path) :
 
     except Exception as e :
         raise CustomException(e,sys)
-    
+
 
 @lru_cache(maxsize=1)
 def load_config(config_path: str = "config.yaml")-> dict:
 
     try:
-        with open(config_path, "r") as f:
+        with open(config_path) as f:
             return yaml.safe_load(f)
 
     except FileNotFoundError as e:
         logging.exception(f"Config file not found at {config_path}")
         raise CustomException(e,sys)
-    
+
     except yaml.YAMLError as e:
         logging.exception(f"Error parsing yaml {e}")
         raise CustomException(e,sys)

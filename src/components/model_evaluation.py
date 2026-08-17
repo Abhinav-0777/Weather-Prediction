@@ -1,13 +1,13 @@
-import os 
-import sys
 import json
+import os
+import sys
+
 import pandas as pd
-from src.utils import load_config
-from src.logger import logging
-from src.utils import load_object
-from src.exception import CustomException
 from sklearn.metrics import classification_report, confusion_matrix, fbeta_score
 
+from src.exception import CustomException
+from src.logger import logging
+from src.utils import load_config, load_object
 
 config = load_config()
 
@@ -28,7 +28,7 @@ def model_evaluation(transformed_test_path) -> dict:
     """
 
     try :
-    
+
         test_arr = load_object(transformed_test_path)
 
         logging.info("Successfully loaded the transformed_test_array object")
@@ -41,7 +41,7 @@ def model_evaluation(transformed_test_path) -> dict:
 
         model_path = os.path.join("artifacts","model.pkl")
         model_obj = load_object(model_path)
-        
+
         logging.info("Predicting on the data")
 
         y_pred = model_obj.predict(X_test)

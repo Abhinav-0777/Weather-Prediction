@@ -1,11 +1,15 @@
 import os
-import pytest
+
 import numpy as np
 import pandas as pd
-from src.utils import save_object
-from src.exception import CustomException
-from src.monitoring.evidently.data_loader import get_reference_evaluation_dataframe, get_reference_train_dataframe
+import pytest
 
+from src.exception import CustomException
+from src.monitoring.evidently.data_loader import (
+    get_reference_evaluation_dataframe,
+    get_reference_train_dataframe,
+)
+from src.utils import save_object
 
 
 def test_get_reference_evaluation_dataframe_raises_on_missing_file():
@@ -37,7 +41,7 @@ def test_get_reference_evaluation_dataframe(sample_reference_evaluation_path):
 
     assert isinstance(reference_evaluation_dataframe, pd.DataFrame)
     assert list(reference_evaluation_dataframe.columns) == ['truth_label','predicted_output']
-    assert all(reference_evaluation_dataframe[col].dtype == 'int64' for col in reference_evaluation_dataframe.columns) 
+    assert all(reference_evaluation_dataframe[col].dtype == 'int64' for col in reference_evaluation_dataframe.columns)
     assert all(set(reference_evaluation_dataframe[col].unique()) == {0,1} for col in reference_evaluation_dataframe.columns)
     assert reference_evaluation_dataframe.shape == (5,2)
 

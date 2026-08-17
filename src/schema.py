@@ -1,6 +1,7 @@
-from pydantic import BaseModel,Field
 from datetime import date
 from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class data_validation(BaseModel) :
@@ -14,7 +15,7 @@ class data_validation(BaseModel) :
                         'GoldCoast','Townsville','Adelaide','MountGambier','Nuriootpa','Woomera',
                         'Albany','Witchcliffe','PearceRAAF','PerthAirport','Perth','SalmonGums',
                         'Walpole','Hobart','Launceston','AliceSprings','Darwin','Katherine',
-                        'Uluru'] 
+                        'Uluru']
     MinTemp : float = Field (ge=-15, le=45)
     MaxTemp : float = Field (ge=-10, le=52)
     Rainfall : float = Field (ge=0, le=400)

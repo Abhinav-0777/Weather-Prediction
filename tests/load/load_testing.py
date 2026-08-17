@@ -1,5 +1,7 @@
 import random
+
 from locust import HttpUser, constant, task
+
 
 class MOCK_USER(HttpUser):
 

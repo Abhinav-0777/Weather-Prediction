@@ -1,10 +1,12 @@
 import sys
+from datetime import UTC, datetime, timedelta
+
 import pandas as pd
 from sqlalchemy import func
+
+from src.exception import CustomException
 from src.logger import logging
 from src.utils import load_object
-from src.exception import CustomException
-from datetime import datetime, timedelta, timezone
 
 
 def get_current_dataframe(session, table_name, model_version) -> pd.DataFrame:
@@ -24,14 +26,14 @@ def get_current_dataframe(session, table_name, model_version) -> pd.DataFrame:
     Raises:
         CustomException: If the database query or session handling fails.
     """
-    
+
     db = None
 
     try:
         logging.info("Creating a new session to fetch current_data")
         db = session()
 
-        db_date = datetime.now(timezone.utc)
+        db_date = datetime.now(UTC)
         window_start = db_date.date() - timedelta(days=8)
         window_end = db_date.date() - timedelta(days=2)
 
@@ -139,7 +141,7 @@ def get_reference_train_dataframe(reference_path) -> pd.DataFrame:
 def get_confidence_score_current_data(session, table_name, model_version) -> pd.DataFrame:
 
     db = None
-    
+
     try:
         logging.info("Creating a new session to fetch confidence_score")
         db = session()

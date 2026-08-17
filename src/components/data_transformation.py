@@ -1,14 +1,16 @@
-import sys
-from src.logger import logging
-from src.exception import CustomException
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler, OrdinalEncoder, LabelEncoder
-from sklearn.impute import SimpleImputer
-from sklearn.compose import ColumnTransformer 
-from sklearn.pipeline import Pipeline
 import os
+import sys
 from dataclasses import dataclass
+
+import numpy as np
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import LabelEncoder, OrdinalEncoder, StandardScaler
+
+from src.exception import CustomException
+from src.logger import logging
 from src.utils import save_object
 
 
@@ -18,13 +20,13 @@ class DataTransformationConfig :
     transformed_train_array_path : str = os.path.join("artifacts","transformed_train_array.npy")
     transformed_test_array_path : str = os.path.join("artifacts","transformed_test_array.npy")
 
-class DataTransformation() :
+class DataTransformation :
 
     def __init__(self) :
         self.data_transformation_config = DataTransformationConfig()
 
     def get_data_transformer_object(self, numerical_columns, categorical_columns) :
-        
+
         """Creates and returns a preprocessing pipeline for numerical
            and categorical features.
 
@@ -36,11 +38,11 @@ class DataTransformation() :
         logging.info("Data transformation started")
 
         try :
-            
+
             num_pipeline = Pipeline(
                 steps= [
                     ('imputer', SimpleImputer(strategy='most_frequent')),
-                    ('scaler', StandardScaler())                    
+                    ('scaler', StandardScaler())
                 ]
             )
 
@@ -57,7 +59,7 @@ class DataTransformation() :
                 ("num_pipeline", num_pipeline, numerical_columns),
                 ("cat_pipeline", cat_pipeline, categorical_columns)
             ])
-            
+
             logging.info("Successfully created the data_transformer object")
 
             return preprocessor
@@ -65,10 +67,10 @@ class DataTransformation() :
         except Exception as e:
             logging.exception("An error has occurred")
             raise CustomException(e,sys)
-        
+
 
     def initiate_data_transformation(self, train_path, test_path) :
-        
+
         """
         Initiates the data transformation process.
 
@@ -96,12 +98,12 @@ class DataTransformation() :
         """
 
         logging.info("Data transformation has started")
-        
+
         try :
 
             train_df = pd.read_csv(train_path)
             test_df = pd.read_csv(test_path)
-            
+
             logging.info("Successfully read the train and test data")
 
             train_df = train_df.dropna(subset=['RainTomorrow'])
@@ -117,13 +119,13 @@ class DataTransformation() :
                 data['Month'] = data['Date'].dt.month
                 data['Day'] = data['Date'].dt.day
                 data['Weekday'] = data['Date'].dt.weekday
-                
+
                 data.drop(columns = 'Date', inplace=True)
 
             target_column_name = 'RainTomorrow'
 
             logging.info("Dividing the train and test set into input and target features")
- 
+
             input_feature_train_df = train_df.drop(columns=target_column_name)
             target_feature_train_df = train_df[target_column_name]
 
@@ -134,7 +136,7 @@ class DataTransformation() :
             target_feature_train_arr = label_encoder_object.fit_transform(target_feature_train_df)
             target_feature_test_arr = label_encoder_object.transform(target_feature_test_df)
 
-            numerical_columns = input_feature_train_df.select_dtypes(include=np.number).columns 
+            numerical_columns = input_feature_train_df.select_dtypes(include=np.number).columns
             categorical_columns = input_feature_train_df.select_dtypes(include=['object','category']).columns
 
             logging.info("Obtaining the preprocessor object.... ")
@@ -143,12 +145,12 @@ class DataTransformation() :
                 numerical_columns=numerical_columns,
                 categorical_columns=categorical_columns
             )
-            
+
             logging.info("Applying the preprocessing object on training and testing dataframe")
 
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
-            input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)     
-            
+            input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
+
             logging.info("Successfully applied the preprocessing object")
 
             train_arr = np.c_[input_feature_train_arr, target_feature_train_arr]
@@ -178,7 +180,7 @@ class DataTransformation() :
                 test_arr,
                 self.data_transformation_config.transformed_data_obj_file_path
             )
-        
+
 
         except Exception as e:
             logging.exception("An error has occurred")
