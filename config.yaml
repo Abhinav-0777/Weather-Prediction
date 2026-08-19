@@ -1,6 +1,60 @@
 date_format: "%Y-%m-%d_%H-%M-%S"
-model_version: v1
+model_version: "v1"
 column_names: ['MinTemp', 'MaxTemp', 'Rainfall', 'Evaporation', 'Sunshine', 'WindGustSpeed', 'WindSpeed9am', 'WindSpeed3pm', 'Humidity9am', 'Humidity3pm', 'Pressure9am', 'Pressure3pm', 'Cloud9am', 'Cloud3pm', 'Temp9am', 'Temp3pm', 'Year', 'Month', 'Day', 'Weekday', 'Location', 'WindGustDir', 'WindDir9am', 'WindDir3pm', 'RainToday']
 test_path: artifacts/test.csv
 model_path: artifacts/model.pkl
 preprocessor_path: artifacts/preprocessing_object.pkl
+HOURLY_FEATURES: ["temperature_2m","relative_humidity_2m","pressure_msl","wind_speed_10m","wind_direction_10m","wind_gusts_10m","cloud_cover"]
+DAILY_FEATURES: ["temperature_2m_max","temperature_2m_min","sunshine_duration","precipitation_sum","et0_fao_evapotranspiration","wind_direction_10m_dominant"]
+DIRECTIONS: ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW']
+CITY_COORDS: {
+                Albury:          [-36.0748, 146.924],
+                BadgerysCreek:   [-33.8907, 150.7426],
+                Cobar:           [-31.4967, 145.8344],
+                CoffsHarbour:    [-30.2963, 153.1135],
+                Moree:           [-29.4628, 149.8416],
+                Newcastle:       [-32.9295, 151.7801],
+                NorahHead:       [-33.2732, 151.5588],
+                NorfolkIsland:   [-29.0408, 167.9547],
+                Penrith:         [-33.75, 150.7],
+                Richmond:        [-41.3333, 173.1833],
+                Sydney:          [-33.8678, 151.2073],
+                SydneyAirport:   [-33.9461, 151.1770],
+                WaggaWagga:      [-35.1258, 147.3537],
+                Williamtown:     [-32.8064, 151.8436],
+                Wollongong:      [-34.424, 150.8935],
+                Canberra:        [-35.2835, 149.1281],
+                Tuggeranong:     [-35.4165, 149.0695],
+                MountGinini:     [-35.5307, 148.7713],
+                Ballarat:        [-37.5662, 143.8496],
+                Bendigo:         [-36.7582, 144.2802],
+                Sale:            [-38.111, 147.068],
+                MelbourneAirport: [-37.6707, 144.8379],
+                Melbourne:       [-37.814, 144.9633],
+                Mildura:         [-34.1855, 142.1625],
+                Nhil:            [-36.3333, 141.65],
+                Portland:        [-38.3456, 141.6042],
+                Watsonia:        [-37.7167, 145.0833],
+                Dartmoor:        [-37.9222, 141.2749],
+                Brisbane:        [-27.4679, 153.0281],
+                Cairns:          [-16.9237, 145.7661],
+                GoldCoast:       [-28.0003, 153.4309],
+                Townsville:      [-19.2664, 146.8057],
+                Adelaide:        [-34.9287, 138.5986],
+                MountGambier:    [-37.8318, 140.7792],
+                Nuriootpa:       [-34.4682, 138.9977],
+                Woomera:         [-31.1998, 136.8326],
+                Albany:          [-35.0269, 117.8837],
+                Witchcliffe:     [-34.0333, 115.1],
+                PearceRAAF:      [-31.6667, 116.0167],
+                PerthAirport:    [-31.9321, 115.9564],
+                Perth:           [-31.9522, 115.8614],
+                SalmonGums:      [-32.9833, 121.6333],
+                Walpole:         [-34.976, 116.7302],
+                Hobart:          [-42.8794, 147.3294],
+                Launceston:      [-41.4388, 147.1347],
+                AliceSprings:    [-23.6975, 133.8836],
+                Darwin:          [-12.4611, 130.8418],
+                Katherine:       [-14.4652, 132.2635],
+                Uluru:           [-25.3415, 131.0354]
+          }

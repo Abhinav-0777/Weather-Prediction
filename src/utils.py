@@ -3,6 +3,7 @@ import sys
 from functools import lru_cache
 
 import dill
+import numpy as np
 import pandas as pd
 import yaml
 from sklearn.metrics import fbeta_score, make_scorer
@@ -104,3 +105,18 @@ def load_config(config_path: str = "config.yaml")-> dict:
     except yaml.YAMLError as e:
         logging.exception(f"Error parsing yaml {e}")
         raise CustomException(e,sys)
+
+
+def make_data_json_serializable(result: dict) -> dict:
+
+    for key in list(result.keys()):
+
+        value = result[key]
+        if isinstance(value, np.integer):
+            result[key] = int(value)
+        elif isinstance(value, np.floating):
+            result[key] = float(value)
+        elif isinstance(value, pd.DataFrame):
+            result[key] = value.to_dict(orient="records")
+
+    return result
