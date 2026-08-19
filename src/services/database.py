@@ -86,6 +86,7 @@ def save_to_database(metrics_data: dict):
     logging.info("Creating a new session")
 
     db = SessionLocal()
+
     try:
 
         db_timestamp = datetime.fromisoformat(metrics_data["timestamp"])
@@ -105,6 +106,19 @@ def save_to_database(metrics_data: dict):
         logging.info("Adding the data to the session's memory")
 
         db.add(log_record)
+
+        logging.info("Commiting the data successfully to Supabase")
+
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        db.close()
+        logging.exception("[MONITORING FAILED] Couldn't commit metrics log to Supabase.")
+        raise CustomException(e,sys)
+
+
+    try:
 
         location_to_be_filled = metrics_data["input_features"][0]['Location']
 
@@ -129,13 +143,14 @@ def save_to_database(metrics_data: dict):
             previous_row.truth_label = truth_label_value
             logging.info(f"Filled truth_label for {location_to_be_filled} ({yesterday}): {truth_label_value}")
 
-        logging.info("Getting the data committed")
+        logging.info("Committing yesterday's truth labels to Supabase")
 
         db.commit()
 
     except Exception as e:
         db.rollback()
-        logging.exception(f"[MONITORING FAILED] Couldn't commit metrics log to Supabase: {e}")
+        logging.exception("An error has occurred while filling yesterday's truth value.")
+        raise CustomException(e,sys)
 
     finally:
         db.close()
