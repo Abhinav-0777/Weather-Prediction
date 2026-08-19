@@ -45,6 +45,7 @@ class PredictionPipeline :
             data_scaled = preprocessor_object.transform(features)
 
             data_scaled_dataframe = pd.DataFrame(data_scaled, columns=config['column_names'])
+
             logging.info("Running prediction on the scaled data")
 
             preds = model_obj.predict(data_scaled)
