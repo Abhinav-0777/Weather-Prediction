@@ -107,16 +107,19 @@ def load_config(config_path: str = "config.yaml")-> dict:
         raise CustomException(e,sys)
 
 
-def make_data_json_serializable(result: dict) -> dict:
+def make_data_json_serializable(result: dict, metrics: dict) -> dict:
 
     for key in list(result.keys()):
 
         value = result[key]
         if isinstance(value, np.integer):
             result[key] = int(value)
+            metrics['prediction'] = int(value)
         elif isinstance(value, np.floating):
             result[key] = float(value)
+            metrics['confidence_score'] = float(value)
         elif isinstance(value, pd.DataFrame):
             result[key] = value.to_dict(orient="records")
+            metrics['input_features'] = value.to_dict(orient="records")
 
     return result

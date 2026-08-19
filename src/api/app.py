@@ -171,7 +171,7 @@ async def prediction_live(request: Request, location: str = None, background_tas
         top_features = await asyncio.to_thread(model_interpretability, result["features"])
 
         logging.info("Making data json serializable")
-        result = make_data_json_serializable(result)
+        result = make_data_json_serializable(result=result, metrics=metrics)
 
         logging.info("Saving the predictions data and other metrics to Supabase")
         background_tasks.add_task(save_to_database, metrics)
@@ -201,7 +201,7 @@ async def prediction_live_with_api(request: Request, location: str | None = None
         result, metrics = output["result"], output["metrics"]
 
         logging.info("Making data json serializable")
-        result = make_data_json_serializable(result)
+        result = make_data_json_serializable(result=result, metrics=metrics)
 
         logging.info("Saving the predictions data and other metrics to Supabase")
         background_tasks.add_task(save_to_database, metrics)
