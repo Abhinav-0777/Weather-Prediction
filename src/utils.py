@@ -104,7 +104,7 @@ def load_config(config_path: str = "config.yaml")-> dict:
         raise CustomException(e,sys)
 
     except yaml.YAMLError as e:
-        logging.exception(f"Error parsing yaml")
+        logging.exception("Error parsing yaml")
         raise CustomException(e,sys)
 
 
