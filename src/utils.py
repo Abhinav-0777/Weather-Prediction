@@ -25,7 +25,7 @@ def save_object(file_path, obj) :
 
 
     except Exception as e :
-        logging.exception("An error has occurred")
+        logging.exception(f"An error has occurred while saving the object to {file_path}")
         raise CustomException(e,sys)
 
 
@@ -61,7 +61,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
 
     except Exception as e :
-        logging.exception("An error has occurred")
+        logging.exception("An error has occurred while hyperparameter tuning")
         raise CustomException(e,sys)
 
 
@@ -72,7 +72,7 @@ def load_object(file_path) :
             return dill.load(file_obj)
 
     except Exception as e :
-        logging.exception("An error has occurred.")
+        logging.exception(f"An error has occurred loading the object from {file_path}")
         raise CustomException(e,sys)
 
 
@@ -88,6 +88,7 @@ def get_data_Features(train_path) :
         return features_list
 
     except Exception as e :
+        logging.exception(f"An error occurred while fetching the list of features from dataframe at path {train_path}")
         raise CustomException(e,sys)
 
 
@@ -103,23 +104,35 @@ def load_config(config_path: str = "config.yaml")-> dict:
         raise CustomException(e,sys)
 
     except yaml.YAMLError as e:
-        logging.exception(f"Error parsing yaml {e}")
+        logging.exception(f"Error parsing yaml")
         raise CustomException(e,sys)
 
 
 def make_data_json_serializable(result: dict, metrics: dict) -> dict:
 
-    for key in list(result.keys()):
+    try:
 
-        value = result[key]
-        if isinstance(value, np.integer):
-            result[key] = int(value)
-            metrics['prediction'] = int(value)
-        elif isinstance(value, np.floating):
-            result[key] = float(value)
-            metrics['confidence_score'] = float(value)
-        elif isinstance(value, pd.DataFrame):
-            result[key] = value.to_dict(orient="records")
-            metrics['input_features'] = value.to_dict(orient="records")
+        for key in list(result.keys()):
 
-    return result
+            value = result[key]
+
+            if isinstance(value, np.integer):
+                logging.info(f"Converting the value: {value} of key: {key} into python native integer type")
+                result[key] = int(value)
+                metrics['prediction'] = int(value)
+
+            elif isinstance(value, np.floating):
+                logging.info(f"Converting the value: {value} of key: {key} into python native float type")
+                result[key] = float(value)
+                metrics['confidence_score'] = float(value)
+
+            elif isinstance(value, pd.DataFrame):
+                logging.info(f"Converting the value: {value} of key: {key} into list[dict] type")
+                result[key] = value.to_dict(orient="records")
+                metrics['input_features'] = value.to_dict(orient="records")
+
+        return result
+
+    except Exception as e:
+        logging.exception("An error occurred while making 'result' and 'metrics' json serializable")
+        raise CustomException(e,sys)
