@@ -4,14 +4,15 @@ from datetime import datetime
 
 from evidently import DataDefinition, Dataset, Report
 from evidently.metrics import ValueDrift
-from src.monitoring.data_loader import (
+
+from src.database.connection import SessionLocal
+from src.database.models import ModelPredictionLog
+from src.exception import CustomException
+from src.logger import logging
+from src.monitoring.evidently.data_loader import (
     get_confidence_score_current_data,
     get_confidence_score_reference_data,
 )
-
-from src.exception import CustomException
-from src.logger import logging
-from src.services.database import ModelPredictionLog, SessionLocal
 from src.utils import load_config
 
 config = load_config()
