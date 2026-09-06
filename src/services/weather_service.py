@@ -7,7 +7,6 @@ import httpx
 from src.exception import CustomException
 from src.logger import logging
 
-
 logging.info("Creating a client using httpx")
 client = httpx.AsyncClient()
 
