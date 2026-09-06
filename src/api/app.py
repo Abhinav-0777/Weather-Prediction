@@ -13,6 +13,8 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from src.api.auth import verify_api_key
+from src.core.http_client import close_http_client, setup_http_client
+from src.core.redis_client import close_redis, setup_redis
 from src.database.connection import check_connection, engine
 from src.database.crud import save_to_database
 from src.database.models import Base
@@ -36,15 +38,29 @@ async def lifespan(app: FastAPI):
     app_start_time = datetime.now()
     logging.info("Application startup: initializing clients")
 
+    logging.info("Setting up httpx client")
+    await setup_http_client()
+
+    logging.info("Setting up Redis client")
+    await setup_redis()
+
     logging.info("Checking database connection")
     check_connection()
 
     logging.info("Ensuring database tables exist")
     Base.metadata.create_all(bind=engine)
 
-    logging.info("Application startup complete")
+    logging.info(f"Application startup complete at {app_start_time.isoformat()}")
 
     yield
+
+    logging.info("Application shutdown: closing clients")
+
+    logging.info("Closing Redis client")
+    await close_redis()
+
+    logging.info("Closing httpx client")
+    await close_http_client()
 
     logging.info("Application shutdown complete")
 
