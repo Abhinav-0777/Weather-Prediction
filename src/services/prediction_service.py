@@ -5,7 +5,6 @@ from datetime import UTC, datetime
 
 import pandas as pd
 
-from src.components.data_ingestion import fetch_weather
 from src.logger import logging
 from src.monitoring.prometheus.metrics import (
     client_requests,
@@ -14,6 +13,7 @@ from src.monitoring.prometheus.metrics import (
 )
 from src.pipeline.prediction_pipeline import PredictionPipeline
 from src.schema import data_validation
+from src.services.weather_service import fetch_weather
 from src.utils import load_config
 
 config = load_config()
