@@ -2,78 +2,16 @@ import sys
 from datetime import datetime, timedelta
 
 from sqlalchemy import (
-    Column,
-    DateTime,
     Float,
     Integer,
-    String,
     cast,
-    create_engine,
     func,
 )
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import declarative_base, sessionmaker
 
-from src.config import get_env
+from src.database.connection import SessionLocal
+from src.database.models import ModelPredictionLog
 from src.exception import CustomException
 from src.logger import logging
-
-config = get_env()
-
-logging.info("Getting the database_url")
-
-DATABASE_URL = config.get("DATABASE_URL")
-
-logging.info("Creating the engine for the database")
-
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=5,
-    max_overflow=10,
-    pool_timeout=30,
-    pool_recycle=1800
-)
-
-
-def check_connection():
-
-    """Checks if connection to Supabase was successful or not
-    """
-
-    try:
-        logging.info("Getting the database connection checked")
-        with engine.connect():
-            logging.info("Connection successful!")
-
-    except Exception as e:
-        logging.exception(f"Failed to connect to Supabase engine: {e}")
-        raise CustomException(e,sys)
-
-check_connection()
-
-
-logging.info("Configuring the session")
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-
-
-class ModelPredictionLog(Base):
-    __tablename__ = "model_prediction_logs"
-
-    request_id = Column(String, primary_key=True, index=True)
-    timestamp = Column(DateTime(timezone=True), nullable=False)
-    client_type = Column(String, nullable=False)
-    model_version = Column(String, nullable=False)
-    input_features = Column(JSONB, nullable=False)
-    predicted_output = Column(String, nullable=False)
-    confidence_score = Column(Float, nullable=False)
-    latency = Column(Float, nullable=False)
-    truth_label = Column(String, nullable=True)
-
-Base.metadata.create_all(bind=engine)
-
 
 
 def save_to_database(metrics_data: dict):

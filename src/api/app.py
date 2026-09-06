@@ -1,5 +1,6 @@
 import asyncio
 import sys
+from contextlib import asynccontextmanager
 from datetime import datetime
 
 import pandas as pd
@@ -12,18 +13,43 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from src.api.auth import verify_api_key
+from src.database.connection import check_connection, engine
+from src.database.crud import save_to_database
+from src.database.models import Base
 from src.exception import CustomException
 from src.logger import logging
 from src.pipeline.prediction_pipeline import PredictionPipeline
 from src.schema import data_validation
-from src.services.database import save_to_database
 from src.services.explainability_service import model_interpretability
 from src.services.prediction_service import run_prediction
 from src.utils import load_config, make_data_json_serializable
 
 config = load_config()
 
-app = FastAPI()
+app_start_time: datetime | None = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    global app_start_time
+
+    app_start_time = datetime.now()
+    logging.info("Application startup: initializing clients")
+
+    logging.info("Checking database connection")
+    check_connection()
+
+    logging.info("Ensuring database tables exist")
+    Base.metadata.create_all(bind=engine)
+
+    logging.info("Application startup complete")
+
+    yield
+
+    logging.info("Application shutdown complete")
+
+
+app = FastAPI(lifespan=lifespan)
 
 prometheus_metrics_app = make_asgi_app()
 app.mount('/metrics', prometheus_metrics_app)
@@ -41,11 +67,6 @@ templates = Jinja2Templates(directory="src/api/templates")
 @app.get('/health')
 def health() :
     return {'Health':'Ok, API is running.'}
-
-@app.on_event("startup")
-def startup_event() :
-    global app_start_time
-    app_start_time = datetime.now()
 
 def format_uptime(delta):
     total_seconds = int(delta.total_seconds())
@@ -175,6 +196,7 @@ async def prediction_live(request: Request, location: str = None, background_tas
 
         logging.info("Saving the predictions data and other metrics to Supabase")
         background_tasks.add_task(save_to_database, metrics)
+
 
         return templates.TemplateResponse(
             "home.html",
