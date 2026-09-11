@@ -9,7 +9,6 @@ from sklearn.ensemble import (
     RandomForestClassifier,
 )
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import fbeta_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
@@ -136,13 +135,13 @@ class ModelTrainer :
                 params = params
             )
 
-            best_model_score = max(model_report.values())
+            best_model_f2_score = max(model_report.values())
 
-            best_model_name = list(model_report.keys())[list(model_report.values()).index(best_model_score)]
+            best_model_name = list(model_report.keys())[list(model_report.values()).index(best_model_f2_score)]
 
             best_model = models[best_model_name]
 
-            if best_model_score < 0.6 :
+            if best_model_f2_score < 0.6 :
                 raise CustomException("No good model exists currently")
 
             logging.info("Saving the best model")
@@ -152,10 +151,6 @@ class ModelTrainer :
                 obj=best_model
             )
 
-            best_model_prediction = best_model.predict(X_test)
-
-            best_model_f2_score = fbeta_score(y_test, best_model_prediction, beta=2)
-
             logging.info(f"The best model f2_score is: {best_model_f2_score}")
 
             return best_model_f2_score
@@ -163,6 +158,7 @@ class ModelTrainer :
         except Exception as e :
             logging.exception("An error has occurred")
             raise CustomException(e,sys)
+
 
 if __name__ == "__main__" :
     obj = ModelTrainer()
