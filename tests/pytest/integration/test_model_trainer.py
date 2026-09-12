@@ -13,14 +13,6 @@ from src.exception import CustomException
 @pytest.fixture
 def mock_save_object(monkeypatch: pytest.MonkeyPatch) :
 
-    def dummy_save_object_data_transformation(file_path, obj) :
-        pass
-
-    monkeypatch.setattr(
-        "src.components.data_transformation.save_object",
-        dummy_save_object_data_transformation
-    )
-
     def dummy_save_object_model_trainer(file_path, obj) :
         pass
 
@@ -47,6 +39,7 @@ def mock_evaluate_models(monkeypatch: pytest.MonkeyPatch) :
                         dummy_evaluate_models)
 
 
+
 @pytest.fixture
 def prepare_transformed_data(tmp_path: Path, mock_save_object: None):
 
@@ -70,25 +63,30 @@ def prepare_transformed_data(tmp_path: Path, mock_save_object: None):
     train_data.to_csv(train_path, index=False)
     test_data.to_csv(test_path, index=False)
 
-    transformer = DataTransformation()
-    train_arr, test_arr, preprocessor_path = transformer.initiate_data_transformation(
-        train_path=str(train_path),
-        test_path=str(test_path)
+    data_transformer_object = DataTransformation()
+
+    data_transformer_object.data_transformation_config.transformed_train_array_path = os.path.join(tmp_path, "train_arr.npy")
+    data_transformer_object.data_transformation_config.transformed_test_array_path = os.path.join(tmp_path, "test_arr.npy")
+    data_transformer_object.data_transformation_config.transformed_data_obj_file_path = os.path.join(tmp_path, "preprocessor.pkl")
+
+    transformed_train_array_path, transformed_test_array_path, preprocessor_path = data_transformer_object.initiate_data_transformation(
+        train_data_path=str(train_path),
+        test_data_path=str(test_path)
     )
 
-    return train_arr, test_arr, preprocessor_path
+    return transformed_train_array_path, transformed_test_array_path, preprocessor_path
 
 
 
-def test_initiate_model_trainer(prepare_transformed_data: tuple[np.array, np.array, str], mock_evaluate_models) :
+def test_initiate_model_trainer(prepare_transformed_data: tuple[Path, Path, str], mock_evaluate_models: None) :
 
-    train_arr, test_arr, preprocessor_path = prepare_transformed_data
+    transformed_train_array_path, transformed_test_array_path, preprocessor_path = prepare_transformed_data
 
     model_trainer_object = ModelTrainer()
 
     best_model_accuracy = model_trainer_object.initiate_model_trainer(
-        train_array=train_arr,
-        test_array=test_arr,
+        transformed_train_array_path=transformed_train_array_path,
+        transformed_test_array_path=transformed_test_array_path,
         preprocessor_path=preprocessor_path
     )
 
@@ -97,7 +95,7 @@ def test_initiate_model_trainer(prepare_transformed_data: tuple[np.array, np.arr
 
 
 
-def test_low_accuracy_case(prepare_transformed_data: tuple[np.array, np.array, str], monkeypatch: pytest.MonkeyPatch) :
+def test_low_accuracy_case(prepare_transformed_data: tuple[Path, Path, str], monkeypatch: pytest.MonkeyPatch) :
 
     def fake_evaluate_models(*args, **kwargs) :
         return {'Logistic Regression': 0.5}
@@ -105,13 +103,13 @@ def test_low_accuracy_case(prepare_transformed_data: tuple[np.array, np.array, s
     monkeypatch.setattr('src.components.model_trainer.evaluate_models',
                         fake_evaluate_models)
 
-    train_arr, test_arr, preprocessor_path = prepare_transformed_data
+    transformed_train_array_path, transformed_test_array_path, preprocessor_path = prepare_transformed_data
 
     model_trainer_object = ModelTrainer()
 
     with pytest.raises(CustomException) :
         model_trainer_object.initiate_model_trainer(
-            train_array=train_arr,
-            test_array=test_arr,
+            transformed_train_array_path=transformed_train_array_path,
+            transformed_test_array_path=transformed_test_array_path,
             preprocessor_path=preprocessor_path
         )

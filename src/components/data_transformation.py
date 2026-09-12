@@ -69,7 +69,7 @@ class DataTransformation :
             raise CustomException(e,sys)
 
 
-    def initiate_data_transformation(self, train_path, test_path) :
+    def initiate_data_transformation(self, train_data_path, test_data_path) :
 
         """
         Initiates the data transformation process.
@@ -101,8 +101,8 @@ class DataTransformation :
 
         try :
 
-            train_df = pd.read_csv(train_path)
-            test_df = pd.read_csv(test_path)
+            train_df = pd.read_csv(train_data_path)
+            test_df = pd.read_csv(test_data_path)
 
             logging.info("Successfully read the train and test data")
 
@@ -176,8 +176,8 @@ class DataTransformation :
             logging.info("Data saved successfully into preprocessing_object.pkl")
 
             return (
-                train_arr,
-                test_arr,
+                self.data_transformation_config.transformed_train_array_path,
+                self.data_transformation_config.transformed_test_array_path,
                 self.data_transformation_config.transformed_data_obj_file_path
             )
 

@@ -5,9 +5,6 @@ from dataclasses import dataclass
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from src.components.data_transformation import DataTransformation
-from src.components.model_evaluation import model_evaluation
-from src.components.model_trainer import ModelTrainer
 from src.exception import CustomException
 from src.logger import logging
 
@@ -78,24 +75,3 @@ class DataIngestion :
         except Exception as e :
             logging.exception("An error has occurred")
             raise CustomException(e,sys)
-
-
-if __name__ == "__main__" :
-    logging.info("Logging has started")
-
-    data_ingestion_obj = DataIngestion()
-    train_data, test_data = data_ingestion_obj.initiate_data_ingestion()
-
-    data_transformation_obj = DataTransformation()
-    train_transformed, test_transformed, preprocessor_obj = data_transformation_obj.initiate_data_transformation(train_path=train_data, test_path=test_data)
-
-    model_trainer_obj = ModelTrainer()
-    best_model_f2_score = model_trainer_obj.initiate_model_trainer(
-        train_array=train_transformed,
-        test_array=test_transformed,
-        preprocessor_path=preprocessor_obj
-    )
-    metrics_dict = model_evaluation()
-
-    print(best_model_f2_score)
-    print(metrics_dict)

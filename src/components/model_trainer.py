@@ -15,7 +15,7 @@ from xgboost import XGBClassifier
 
 from src.exception import CustomException
 from src.logger import logging
-from src.utils import evaluate_models, save_object
+from src.utils import evaluate_models, load_object, save_object
 
 
 @dataclass
@@ -31,7 +31,7 @@ class ModelTrainer :
     def __init__(self) :
         self.model_trainer_config = ModelTrainerConfig()
 
-    def initiate_model_trainer(self, train_array, test_array, preprocessor_path) :
+    def initiate_model_trainer(self, transformed_train_array_path, transformed_test_array_path, preprocessor_path) :
 
         """
         Trains multiple classification models and selects the best one
@@ -54,7 +54,11 @@ class ModelTrainer :
 
 
         try :
+
             logging.info("Model Training has started")
+
+            train_array = load_object(transformed_train_array_path)
+            test_array = load_object(transformed_test_array_path)
 
             logging.info("Splitting the train and test arrays")
 

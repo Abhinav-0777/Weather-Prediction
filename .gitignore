@@ -9,3 +9,4 @@ catboost_info/
 *.env
 logs/
 reports/
+mlflow.db

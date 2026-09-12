@@ -7,6 +7,7 @@ import pytest
 
 from src.components.data_transformation import DataTransformation
 from src.exception import CustomException
+from src.utils import load_object
 
 
 @pytest.fixture
@@ -39,17 +40,6 @@ def sample_data(tmp_path: Path) :
 
 
 
-@pytest.fixture
-def mock_save_object(monkeypatch : pytest.MonkeyPatch) :
-
-    def dummy_save_object(file_path, obj) :
-        pass
-
-    monkeypatch.setattr("src.components.data_transformation.save_object",
-                        dummy_save_object)
-
-
-
 def test_get_data_transformer_object() :
 
     numerical_columns = ["MaxTemp"]
@@ -68,16 +58,31 @@ def test_get_data_transformer_object() :
 
 
 
-def test_initiate_data_transformation(sample_data: tuple[str, str], mock_save_object: None) :
+@pytest.fixture
+def transformed_result(sample_data: tuple[str, str], tmp_path: Path):
 
     train_path, test_path = sample_data
-
     data_transformer_object = DataTransformation()
 
-    train_arr, test_arr, preprocessor_path = data_transformer_object.initiate_data_transformation(
-            train_path=train_path,
-            test_path=test_path
+    data_transformer_object.data_transformation_config.transformed_train_array_path = os.path.join(tmp_path, "train_arr.npy")
+    data_transformer_object.data_transformation_config.transformed_test_array_path = os.path.join(tmp_path, "test_arr.npy")
+    data_transformer_object.data_transformation_config.transformed_data_obj_file_path = os.path.join(tmp_path, "preprocessor.pkl")
+
+    transformed_train_array_path, transformed_test_array_path, preprocessor_path = data_transformer_object.initiate_data_transformation(
+            train_data_path=train_path,
+            test_data_path=test_path
     )
+
+    train_arr = load_object(transformed_train_array_path)
+    test_arr = load_object(transformed_test_array_path)
+
+    return train_arr, test_arr, preprocessor_path
+
+
+
+def test_initiate_data_transformation(transformed_result: tuple[np.ndarray, np.ndarray, str]) :
+
+    train_arr, test_arr, _ = transformed_result
 
     assert train_arr is not None
     assert test_arr is not None
@@ -86,35 +91,23 @@ def test_initiate_data_transformation(sample_data: tuple[str, str], mock_save_ob
 
 
 
-def test_no_null_values(sample_data: tuple[str, str], mock_save_object: None) :
+def test_no_null_values(transformed_result: tuple[np.ndarray, np.ndarray, str]) :
 
-    train_path, test_path = sample_data
-
-    data_transformer_object = DataTransformation()
-
-    train_arr, test_arr, preprocessor_path = data_transformer_object.initiate_data_transformation(
-            train_path=train_path,
-            test_path=test_path
-    )
+    train_arr, test_arr, _ = transformed_result
 
     assert not np.isnan(train_arr).any()
     assert not np.isnan(test_arr).any()
 
 
 
-def test_shape_consistency(sample_data: tuple[str, str], mock_save_object: None) :
+def test_shape_consistency(sample_data: tuple[str, str], transformed_result: tuple[np.ndarray, np.ndarray, str]) :
 
     train_path, test_path = sample_data
 
     original_train_data = pd.read_csv(train_path)
     original_test_data = pd.read_csv(test_path)
 
-    data_transformer_object = DataTransformation()
-
-    train_arr, test_arr, preprocessor_path = data_transformer_object.initiate_data_transformation(
-            train_path=train_path,
-            test_path=test_path
-    )
+    train_arr, test_arr, _ = transformed_result
 
     assert train_arr.shape[1] == test_arr.shape[1]
     assert original_train_data.shape[0] == train_arr.shape[0]
@@ -122,7 +115,7 @@ def test_shape_consistency(sample_data: tuple[str, str], mock_save_object: None)
 
 
 
-def test_invalid_input(tmp_path: Path, mock_save_object: None) :
+def test_invalid_input(tmp_path: Path) :
 
     bad_train_data = pd.DataFrame({
         "MaxTemp": [10, 20],
@@ -144,8 +137,12 @@ def test_invalid_input(tmp_path: Path, mock_save_object: None) :
 
     data_transformer_object = DataTransformation()
 
+    data_transformer_object.data_transformation_config.transformed_train_array_path = os.path.join(tmp_path, "train_arr.npy")
+    data_transformer_object.data_transformation_config.transformed_test_array_path = os.path.join(tmp_path, "test_arr.npy")
+    data_transformer_object.data_transformation_config.transformed_data_obj_file_path = os.path.join(tmp_path, "preprocessor.pkl")
+
     with pytest.raises(CustomException) :
         data_transformer_object.initiate_data_transformation(
-            train_path=bad_train_path,
-            test_path=bad_test_path
+            train_data_path=bad_train_path,
+            test_data_path=bad_test_path
         )
