@@ -10,7 +10,6 @@ from src.monitoring.evidently.monitor_prediction_performance import (
 )
 from src.utils import load_config
 
-
 config = load_config()
 
 def run_monitor_confidence_score():
