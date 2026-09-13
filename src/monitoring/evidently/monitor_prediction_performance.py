@@ -97,12 +97,12 @@ if __name__ == "__main__":
 
     logging.info("Starting the model monitoring script")
 
-    prediction_baseline_path = os.path.join("src/monitoring/baselines", f"predictions_baseline_{config['model_version']}.csv")
+    prediction_performance_baseline_path = os.path.join("src/monitoring/baselines", f"predictions_baseline_{config['model_version']}.csv")
 
     plotting_predictions_performance(
         session=SessionLocal,
         table_name=ModelPredictionLog,
-        reference_path=prediction_baseline_path,
+        reference_path=prediction_performance_baseline_path,
         model_version=config['model_version'],
         date_format=config['date_format']
     )

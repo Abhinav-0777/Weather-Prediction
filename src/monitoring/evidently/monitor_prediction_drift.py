@@ -92,12 +92,12 @@ def plotting_predictions_drift(session, table_name, reference_path, model_versio
 
 if __name__ == "__main__":
 
-    prediction_baseline_path = os.path.join("src/monitoring/baselines", f"predictions_baseline_{config['model_version']}.csv")
+    prediction_drift_baseline_path = os.path.join("src/monitoring/baselines", f"predictions_baseline_{config['model_version']}.csv")
 
     plotting_predictions_drift(
         session=SessionLocal,
         table_name=ModelPredictionLog,
-        reference_path=prediction_baseline_path,
+        reference_path=prediction_drift_baseline_path,
         model_version=config["model_version"],
         date_format=config["date_format"]
     )

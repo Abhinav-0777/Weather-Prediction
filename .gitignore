@@ -11,3 +11,4 @@ logs/
 reports/
 mlflow.db
 mlruns/
+workspace/
