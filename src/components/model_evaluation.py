@@ -75,7 +75,7 @@ def model_evaluation(transformed_test_path) -> dict:
 
         df.to_csv(f"src/monitoring/baselines/predictions_baseline_{config['model_version']}.csv", header=True, index=None)
 
-        return df
+        return metrics
 
 
     except Exception as e :
