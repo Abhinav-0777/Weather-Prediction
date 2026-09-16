@@ -4,6 +4,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 
 from src.pipeline.training_pipeline import (
+    run_evaluation,
     run_ingestion,
     run_training,
     run_transformation,
@@ -13,5 +14,6 @@ with DAG("model_pipeline", start_date=datetime(2026,9,1), schedule_interval=None
     t1 = PythonOperator(task_id="ingest_data", python_callable=run_ingestion)
     t2 = PythonOperator(task_id="transform_data", python_callable=run_transformation)
     t3 = PythonOperator(task_id="train_model", python_callable=run_training)
+    t4 = PythonOperator(task_id="evaluate_model", python_callable=run_evaluation)
 
-    t1 >> t2 >> t3
+    t1 >> t2 >> t3 >> t4
