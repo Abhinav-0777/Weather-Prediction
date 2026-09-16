@@ -39,8 +39,7 @@ def model_evaluation(transformed_test_path) -> dict:
 
         logging.info("Loading the pickled model file")
 
-        model_path = os.path.join("artifacts","model.pkl")
-        model_obj = load_object(model_path)
+        model_obj = load_object(config['model_path'])
 
         logging.info("Predicting on the data")
 
@@ -62,7 +61,7 @@ def model_evaluation(transformed_test_path) -> dict:
             "classification_report": cr
         }
 
-        metrics_path = os.path.join("artifacts","metrics.json")
+        metrics_path = config['metrics_path']
 
         with open(metrics_path, "w") as f :
             json.dump(metrics, f, indent=4)
@@ -73,7 +72,14 @@ def model_evaluation(transformed_test_path) -> dict:
 
         df = df_eval.astype('int64')
 
-        df.to_csv(f"src/monitoring/baselines/predictions_baseline_{config['model_version']}.csv", header=True, index=None)
+        baseline_path = os.path.join(
+            config['baseline_dir'],
+            f"predictions_baseline_{config['model_version']}.csv"
+        )
+
+        logging.info(f"Saving the new baseline to '{baseline_path}' file")
+
+        df.to_csv(baseline_path, header=True, index=None)
 
         return metrics
 
