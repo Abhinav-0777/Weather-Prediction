@@ -12,3 +12,4 @@ reports/
 mlflow.db
 mlruns/
 workspace/
+.coverage

@@ -5,15 +5,18 @@ from dataclasses import dataclass
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+from src.utils import load_config
 from src.exception import CustomException
 from src.logger import logging
 
 
+config = load_config()
+
 @dataclass
 class DataIngestionConfig :
-    train_data_path : str = os.path.join("artifacts","train.csv")
-    test_data_path : str = os.path.join("artifacts","test.csv")
-    raw_data_path : str = os.path.join("artifacts","raw.csv")
+    train_data_path : str = os.path.join(config['train_path'])
+    test_data_path : str = os.path.join(config['test_path'])
+    raw_data_path : str = os.path.join(config['raw_path'])
 
 class DataIngestion :
 
@@ -47,7 +50,7 @@ class DataIngestion :
 
         try :
 
-            df = pd.read_csv("data/weatherAUS.csv")
+            df = pd.read_csv(config['data_path'])
             logging.info("Successfully read the dataset as a dataframe")
 
             os.makedirs(os.path.dirname(self.data_ingestion_config.train_data_path),exist_ok=True)
