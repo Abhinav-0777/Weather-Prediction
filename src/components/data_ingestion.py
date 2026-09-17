@@ -5,10 +5,9 @@ from dataclasses import dataclass
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from src.utils import load_config
 from src.exception import CustomException
 from src.logger import logging
-
+from src.utils import load_config
 
 config = load_config()
 
