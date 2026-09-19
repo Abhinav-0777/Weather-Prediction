@@ -1,8 +1,10 @@
 import os
 import sys
+import time
 from functools import lru_cache
 
 import dill
+import mlflow
 import numpy as np
 import pandas as pd
 import yaml
@@ -36,26 +38,51 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
     try :
 
+        logging.info(f"Starting hyperparameter tuning and evaluation for {len(models)} models")
+
         for i in range(len(list(models))) :
 
+            model_name = list(models.keys())[i]
             model = list(models.values())[i]
             para = list(params.values())[i]
 
+            logging.info(f"[{i+1}/{len(models)}] Starting GridSearchCV for model: {model_name}")
+            logging.debug(f"Parameter grid for {model_name}: {para}")
+
             f2_scorer = make_scorer(fbeta_score, beta=2)
 
-            gs = GridSearchCV(model, para, cv=5, scoring=f2_scorer, verbose=2, n_jobs= 4 if list(models.keys())[i] in ['XGBoost','CatBoost'] else -1)
-            gs.fit(X_train, y_train)
+            model_start_time = time.time()
 
-            model.set_params(**gs.best_params_)
+            with mlflow.start_run(run_name=model_name, nested=True):
 
-            model.fit(X_train, y_train)
+                gs = GridSearchCV(model, para, cv=5, scoring=f2_scorer, verbose=2, n_jobs= 4 if list(models.keys())[i] in ['XGBoost','CatBoost'] else -1)
+                gs.fit(X_train, y_train)
 
-            y_test_pred = model.predict(X_test)
+                logging.info(f"{model_name}: GridSearchCV completed. Best params: {gs.best_params_}, Best CV F2 score: {gs.best_score_:.4f}")
 
-            test_model_score = fbeta_score(y_test, y_test_pred, beta=2)
+                model.set_params(**gs.best_params_)
+
+                model.fit(X_train, y_train)
+
+                y_test_pred = model.predict(X_test)
+
+                test_model_score = fbeta_score(y_test, y_test_pred, beta=2)
+
+                model_duration = time.time() - model_start_time
+
+                logging.info(f"{model_name}: Test F2 score: {test_model_score:.4f} (completed in {model_duration:.2f} seconds)")
+
+                mlflow.log_params(gs.best_params_)
+                mlflow.log_metric("cv_best_f2_score", gs.best_score_)
+                mlflow.log_metric("test_f2_score", test_model_score)
+                mlflow.log_param("model_name", model_name)
+
+                logging.debug(f"Logged params and metrics to MLflow for {model_name}")
 
             model_report[list(models.keys())[i]] = test_model_score
 
+        logging.info(f"Completed evaluation of all {len(models)} models")
+        logging.info(f"Final model report: {model_report}")
 
         return model_report
 
