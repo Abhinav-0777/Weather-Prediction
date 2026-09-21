@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 import mlflow
 import mlflow.sklearn
+import torch
 from catboost import CatBoostClassifier
 from sklearn.ensemble import (
     AdaBoostClassifier,
@@ -81,6 +82,8 @@ class ModelTrainer :
 
             logging.debug(f"X_train shape: {X_train.shape}, y_train shape: {y_train.shape}")
             logging.debug(f"X_test shape: {X_test.shape}, y_test shape: {y_test.shape}")
+            
+            GPU_AVAILABLE = torch.cuda.is_available()
 
             models = {
 
@@ -88,8 +91,8 @@ class ModelTrainer :
                 'Decision Trees' : DecisionTreeClassifier(class_weight='balanced', random_state=42),
                 'KNN' : KNeighborsClassifier(),
                 'Random Forest' : RandomForestClassifier(class_weight='balanced', random_state=42),
-                'XGBoost' : XGBClassifier(scale_pos_weight=3.46, device='cuda', random_state=42),
-                'CatBoost' : CatBoostClassifier(verbose=False, scale_pos_weight=3.46, task_type='GPU', random_state=42),
+                'XGBoost' : XGBClassifier(scale_pos_weight=3.46, device='cuda' if GPU_AVAILABLE else 'cpu', random_state=42),
+                'CatBoost' : CatBoostClassifier(verbose=False, scale_pos_weight=3.46, task_type='GPU' if GPU_AVAILABLE else 'CPU', gpu_ram_part=0.25 if GPU_AVAILABLE else 0.95, random_state=42),
                 'AdaBoost' : AdaBoostClassifier(estimator=DecisionTreeClassifier(max_depth=1, class_weight='balanced'), random_state=42),
                 'GradientBoosting' : GradientBoostingClassifier(random_state=42)
 
