@@ -82,7 +82,7 @@ class ModelTrainer :
 
             logging.debug(f"X_train shape: {X_train.shape}, y_train shape: {y_train.shape}")
             logging.debug(f"X_test shape: {X_test.shape}, y_test shape: {y_test.shape}")
-            
+
             GPU_AVAILABLE = torch.cuda.is_available()
 
             models = {
