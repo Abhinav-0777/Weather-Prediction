@@ -199,7 +199,13 @@ class ModelTrainer :
                 mlflow.sklearn.log_model(
                     sk_model=best_model,
                     artifact_path="model",
-                    registered_model_name="weather_prediction_classifier"
+                    registered_model_name="weather_prediction_classifier",
+                    skops_trusted_types=[
+                      "xgboost.core.Booster",
+                      "xgboost.sklearn.XGBClassifier",
+                      "catboost.core.CatBoostClassifier",
+                      "catboost.core.CatBoost"
+                  ]
                 )
 
                 logging.info("Model successfully registered in MLflow")
