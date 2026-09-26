@@ -13,3 +13,7 @@ mlflow.db
 mlruns/
 workspace/
 .coverage
+/.terraform
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
