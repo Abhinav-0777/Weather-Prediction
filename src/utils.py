@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import time
@@ -8,12 +9,19 @@ import mlflow
 import numpy as np
 import pandas as pd
 import yaml
-from sklearn.metrics import fbeta_score, make_scorer
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    fbeta_score,
+    make_scorer,
+)
 from sklearn.model_selection import GridSearchCV
 
 from src.exception import CustomException
 from src.logger import logging
+from src.utils import load_config
 
+config = load_config()
 
 def save_object(file_path, obj) :
 
@@ -66,7 +74,29 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
                 y_test_pred = model.predict(X_test)
 
+                logging.info("Calculating the metrics")
+
                 test_model_score = fbeta_score(y_test, y_test_pred, beta=2)
+                cm = confusion_matrix(y_test, y_test_pred).tolist()
+                cr = classification_report(y_test, y_test_pred, target_names=['Not Rain','Rain'], output_dict=True)
+
+                logging.info(f"F2 SCORE: {test_model_score}")
+                logging.info(f"\nCONFUSION MATRIX:\n {cm}")
+                logging.info(f"\nCLASSIFICATION REPORT:\n {cr}")
+
+                metrics = {
+                    "f2_score": float(test_model_score),
+                    "confusion_matrix": cm,
+                    "classification_report": cr
+                }
+
+                metrics_dir = config['metrics_dir']
+                os.makedirs(metrics_dir, exist_ok=True)
+
+                metrics_path = os.path.join(metrics_dir, f"metrics_{model_name.replace(' ', '_')}.json")
+
+                with open(metrics_path, 'w') as f:
+                    json.dump(metrics, f, indent=4)
 
                 model_duration = time.time() - model_start_time
 
@@ -76,6 +106,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
                 mlflow.log_metric("cv_best_f2_score", gs.best_score_)
                 mlflow.log_metric("test_f2_score", test_model_score)
                 mlflow.log_param("model_name", model_name)
+                mlflow.log_artifact(metrics_path)
 
                 logging.debug(f"Logged params and metrics to MLflow for {model_name}")
 

@@ -7,7 +7,8 @@ test_path: artifacts/test.csv
 raw_path: artifacts/raw.csv
 model_path: artifacts/model.pkl
 preprocessor_path: artifacts/preprocessing_object.pkl
-metrics_path: artifacts/metrics.json
+metrics_path: artifacts/model_metrics/metrics_best_model.json
+metrics_dir: artifacts/model_metrics
 baseline_dir: src/monitoring/baselines
 NUMBER_OF_TRANSFORMED_COLUMNS: 26
 HOURLY_FEATURES: ["temperature_2m","relative_humidity_2m","pressure_msl","wind_speed_10m","wind_direction_10m","wind_gusts_10m","cloud_cover"]

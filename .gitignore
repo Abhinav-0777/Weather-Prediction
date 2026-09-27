@@ -9,6 +9,7 @@ catboost_info/
 *.env
 logs/
 reports/
+airflow/
 mlflow.db
 mlruns/
 workspace/
