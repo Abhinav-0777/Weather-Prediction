@@ -19,9 +19,7 @@ from sklearn.model_selection import GridSearchCV
 
 from src.exception import CustomException
 from src.logger import logging
-from src.utils import load_config
 
-config = load_config()
 
 def save_object(file_path, obj) :
 
@@ -61,7 +59,9 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
             model_start_time = time.time()
 
-            with mlflow.start_run(run_name=model_name, nested=True):
+            with mlflow.start_run(run_name=model_name, nested=True) as run:
+
+                logging.info(f"Started nested MLflow run for {model_name} with run_id: {run.info.run_id}")
 
                 gs = GridSearchCV(model, para, cv=5, scoring=f2_scorer, verbose=2, n_jobs= 4 if list(models.keys())[i] in ['XGBoost','CatBoost'] else -1)
                 gs.fit(X_train, y_train)
@@ -71,6 +71,8 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
                 model.set_params(**gs.best_params_)
 
                 model.fit(X_train, y_train)
+
+                logging.debug(f"{model_name}: Refit on full training data with best params completed")
 
                 y_test_pred = model.predict(X_test)
 
@@ -92,11 +94,16 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
 
                 metrics_dir = config['metrics_dir']
                 os.makedirs(metrics_dir, exist_ok=True)
+                logging.debug(f"Ensured metrics directory exists at: {metrics_dir}")
 
                 metrics_path = os.path.join(metrics_dir, f"metrics_{model_name.replace(' ', '_')}.json")
 
+                logging.debug(f"Writing {model_name}'s metrics to: {metrics_path}")
+
                 with open(metrics_path, 'w') as f:
                     json.dump(metrics, f, indent=4)
+
+                logging.info(f"{model_name}: metrics.json written successfully to {metrics_path}")
 
                 model_duration = time.time() - model_start_time
 
@@ -108,7 +115,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
                 mlflow.log_param("model_name", model_name)
                 mlflow.log_artifact(metrics_path)
 
-                logging.debug(f"Logged params and metrics to MLflow for {model_name}")
+                logging.info(f"{model_name}: Logged params, metrics, and metrics.json artifact to MLflow run_id: {run.info.run_id}")
 
             model_report[list(models.keys())[i]] = test_model_score
 
@@ -121,7 +128,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params) :
     except Exception as e :
         logging.exception("An error has occurred while hyperparameter tuning")
         raise CustomException(e,sys)
-
+    
 
 def load_object(file_path) :
 
@@ -194,3 +201,6 @@ def make_data_json_serializable(result: dict, metrics: dict) -> dict:
     except Exception as e:
         logging.exception("An error occurred while making 'result' and 'metrics' json serializable")
         raise CustomException(e,sys)
+
+
+config = load_config()
